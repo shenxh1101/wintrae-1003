@@ -282,3 +282,64 @@
   margin-right: $spacing-sm;
   font-size: $font-size-md;
 }
+
+.followupCard {
+  background: $color-bg-hover;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+}
+
+.followupHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-bottom: $spacing-md;
+  margin-bottom: $spacing-md;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.followupItem {
+  display: flex;
+  align-items: flex-start;
+  margin-bottom: $spacing-sm;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.followupLabel {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  min-width: 120rpx;
+  flex-shrink: 0;
+}
+
+.followupText {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  flex: 1;
+  line-height: $line-height-normal;
+}
+
+.followupValue {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  padding: 4rpx $spacing-sm;
+  border-radius: $radius-xs;
+}
+
+.satisfactionGood {
+  background: rgba($color-success, 0.1);
+  color: $color-success;
+}
+
+.satisfactionNeutral {
+  background: rgba($color-text-tertiary, 0.1);
+  color: $color-text-tertiary;
+}
+
+.satisfactionBad {
+  background: rgba($color-error, 0.1);
+  color: $color-error;
+}

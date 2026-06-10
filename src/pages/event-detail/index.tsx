@@ -3,10 +3,20 @@ import { View, Text, Image, ScrollView } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import styles from './index.module.scss';
 import Tag from '@/components/Tag';
-import { EventItem } from '@/types';
+import { EventItem, EventFollowup } from '@/types';
 import { useAppStore } from '@/store';
 
 const ASSIGNEE_OPTIONS = ['李村主任', '张支书', '王文书'];
+
+const SATISFACTION_OPTIONS = ['非常满意', '满意', '一般', '不满意', '非常不满意'];
+const SATISFACTION_VALUES: Array<EventFollowup['satisfaction']> = ['very_satisfied', 'satisfied', 'neutral', 'dissatisfied', 'very_dissatisfied'];
+const SATISFACTION_TEXT_MAP: Record<string, string> = {
+  very_satisfied: '非常满意',
+  satisfied: '满意',
+  neutral: '一般',
+  dissatisfied: '不满意',
+  very_dissatisfied: '非常不满意'
+};
 
 const EventDetailPage: React.FC = () => {
   const router = useRouter();
@@ -15,6 +25,7 @@ const EventDetailPage: React.FC = () => {
   const dispatchEvent = useAppStore((s) => s.dispatchEvent);
   const addEventProgress = useAppStore((s) => s.addEventProgress);
   const completeEvent = useAppStore((s) => s.completeEvent);
+  const addEventFollowup = useAppStore((s) => s.addEventFollowup);
   const events = useAppStore((s) => s.events);
 
   const event = useMemo(() => getEvent(id), [id, events]);
@@ -55,6 +66,27 @@ const EventDetailPage: React.FC = () => {
       closed: '已关闭'
     };
     return map[status] || status;
+  };
+
+  const getSatisfactionClass = (satisfaction: string) => {
+    const map: Record<string, string> = {
+      very_satisfied: styles.satisfactionGood,
+      satisfied: styles.satisfactionGood,
+      neutral: styles.satisfactionNeutral,
+      dissatisfied: styles.satisfactionBad,
+      very_dissatisfied: styles.satisfactionBad
+    };
+    return map[satisfaction] || styles.satisfactionNeutral;
+  };
+
+  const getSatisfactionText = (satisfaction: string) => {
+    return SATISFACTION_TEXT_MAP[satisfaction] || satisfaction;
+  };
+
+  const getCurrentTime = () => {
+    const d = new Date();
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
   };
 
   const handleCall = () => {
@@ -108,6 +140,38 @@ const EventDetailPage: React.FC = () => {
     Taro.showToast({ title: '事件已完成', icon: 'success' });
   };
 
+  const handleFollowup = () => {
+    Taro.showActionSheet({
+      itemList: SATISFACTION_OPTIONS,
+      success: (res) => {
+        const satisfaction = SATISFACTION_VALUES[res.tapIndex];
+        Taro.showModal({
+          title: '回访说明',
+          editable: true,
+          placeholderText: '请输入回访说明...',
+          success: (modalRes) => {
+            if (modalRes.confirm) {
+              const remark = (modalRes.content || '').trim();
+              const time = getCurrentTime();
+              addEventFollowup(id, {
+                satisfaction,
+                remark,
+                operator: '村委会',
+                time
+              });
+              Taro.showToast({ title: '回访完成', icon: 'success' });
+            }
+          }
+        });
+      },
+      fail: (err) => {
+        if (err.errMsg !== 'showActionSheet:fail cancel') {
+          console.error('[EventDetail] 回访失败', err);
+        }
+      }
+    });
+  };
+
   const handlePhotoPreview = (url: string) => {
     if (event?.photos) {
       Taro.previewImage({
@@ -128,7 +192,8 @@ const EventDetailPage: React.FC = () => {
   const canDispatch = event.status === 'pending';
   const canAddProgress = event.status === 'processing';
   const canComplete = event.status === 'processing';
-  const showActionButtons = canDispatch || canAddProgress || canComplete;
+  const canFollowup = event.status === 'completed' && !event.followup;
+  const showActionButtons = canDispatch || canAddProgress || canComplete || canFollowup;
 
   return (
     <ScrollView className={styles.detailPage} scrollY>
@@ -170,6 +235,35 @@ const EventDetailPage: React.FC = () => {
           </View>
         )}
       </View>
+
+      {event.followup && (
+        <View className={styles.section}>
+          <Text className={styles.sectionTitle}>
+            <Text className={styles.titleIcon}>📋</Text>
+            回访信息
+          </Text>
+          <View className={styles.followupCard}>
+            <View className={styles.followupHeader}>
+              <Text className={styles.followupLabel}>满意度</Text>
+              <Text className={`${styles.followupValue} ${getSatisfactionClass(event.followup.satisfaction)}`}>
+                {getSatisfactionText(event.followup.satisfaction)}
+              </Text>
+            </View>
+            <View className={styles.followupItem}>
+              <Text className={styles.followupLabel}>回访说明</Text>
+              <Text className={styles.followupText}>{event.followup.remark || '无'}</Text>
+            </View>
+            <View className={styles.followupItem}>
+              <Text className={styles.followupLabel}>回访人</Text>
+              <Text className={styles.followupText}>{event.followup.operator}</Text>
+            </View>
+            <View className={styles.followupItem}>
+              <Text className={styles.followupLabel}>回访时间</Text>
+              <Text className={styles.followupText}>{event.followup.time}</Text>
+            </View>
+          </View>
+        </View>
+      )}
 
       <View className={styles.section}>
         <Text className={styles.sectionTitle}>
@@ -263,6 +357,11 @@ const EventDetailPage: React.FC = () => {
           {canComplete && (
             <View className={styles.primaryBtn} onClick={handleComplete}>
               <Text className={styles.primaryBtnText}>确认完成</Text>
+            </View>
+          )}
+          {canFollowup && (
+            <View className={styles.primaryBtn} onClick={handleFollowup}>
+              <Text className={styles.primaryBtnText}>回访</Text>
             </View>
           )}
         </View>

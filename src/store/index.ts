@@ -1,12 +1,20 @@
 import { create } from 'zustand';
 import Taro from '@tarojs/taro';
-import { Farmer, IndustryProject, EventItem, Publication } from '@/types';
+import { Farmer, IndustryProject, EventItem, Publication, IndustryRecord, EventFollowup } from '@/types';
 import { farmerList } from '@/data/farmers';
 import { industryList } from '@/data/industries';
 import { eventList } from '@/data/events';
 import { publicationList } from '@/data/publications';
 
 const STORAGE_KEY = 'digital_village_store_v1';
+
+const SATISFACTION_MAP: Record<string, string> = {
+  very_satisfied: '非常满意',
+  satisfied: '满意',
+  neutral: '一般',
+  dissatisfied: '不满意',
+  very_dissatisfied: '非常不满意'
+};
 
 interface AppState {
   farmers: Farmer[];
@@ -27,6 +35,7 @@ interface AppState {
   updateIndustry: (id: string, industry: Partial<IndustryProject>) => void;
   deleteIndustry: (id: string) => void;
   getIndustry: (id: string) => IndustryProject | undefined;
+  addIndustryRecord: (projectId: string, record: Omit<IndustryRecord, 'id'>) => void;
 
   addEvent: (event: Omit<EventItem, 'id'>) => void;
   updateEvent: (id: string, event: Partial<EventItem>) => void;
@@ -34,11 +43,16 @@ interface AppState {
   dispatchEvent: (eventId: string, assignee: string) => void;
   completeEvent: (eventId: string, content?: string) => void;
   getEvent: (id: string) => EventItem | undefined;
+  addEventFollowup: (eventId: string, followup: Omit<EventFollowup, 'id'>) => void;
 
   addPublication: (publication: Omit<Publication, 'id'>) => void;
   updatePublication: (id: string, publication: Partial<Publication>) => void;
   deletePublication: (id: string) => void;
   getPublication: (id: string) => Publication | undefined;
+  publishPublication: (id: string) => void;
+  withdrawPublication: (id: string) => void;
+
+  clearAllData: () => void;
 }
 
 const generateId = () =>
@@ -132,6 +146,7 @@ export const useAppStore = create<AppState>((set, get) => ({
     const newIndustry: IndustryProject = {
       ...industry,
       id,
+      records: [],
       createTime: new Date().toISOString().split('T')[0]
     } as IndustryProject;
     set((s) => ({ industries: [newIndustry, ...s.industries] }));
@@ -151,6 +166,30 @@ export const useAppStore = create<AppState>((set, get) => ({
   },
 
   getIndustry: (id) => get().industries.find((i) => i.id === id),
+
+  addIndustryRecord: (projectId, record) => {
+    const id = generateId();
+    const newRecord: IndustryRecord = {
+      ...record,
+      id
+    };
+    set((s) => ({
+      industries: s.industries.map((p) => {
+        if (p.id !== projectId) return p;
+        const updated = {
+          ...p,
+          records: [...p.records, newRecord]
+        };
+        if (record.type === 'output') {
+          updated.output = p.output + record.amount;
+        } else if (record.type === 'subsidy') {
+          updated.subsidyAmount = p.subsidyAmount + record.amount;
+        }
+        return updated;
+      })
+    }));
+    get().persist();
+  },
 
   addEvent: (event) => {
     const id = generateId();
@@ -256,11 +295,41 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   getEvent: (id) => get().events.find((e) => e.id === id),
 
+  addEventFollowup: (eventId, followup) => {
+    const id = generateId();
+    const newFollowup: EventFollowup = {
+      ...followup,
+      id
+    };
+    const satisfactionText = SATISFACTION_MAP[followup.satisfaction] || followup.satisfaction;
+    set((s) => ({
+      events: s.events.map((e) =>
+        e.id === eventId
+          ? {
+              ...e,
+              followup: newFollowup,
+              progress: [
+                ...e.progress,
+                {
+                  id: generateId(),
+                  content: `回访完成，满意度：${satisfactionText}`,
+                  operator: followup.operator,
+                  time: followup.time
+                }
+              ]
+            }
+          : e
+      )
+    }));
+    get().persist();
+  },
+
   addPublication: (publication) => {
     const id = generateId();
     const newPub: Publication = {
       ...publication,
       id,
+      status: 'draft',
       publishTime: new Date().toISOString().split('T')[0],
       views: 0
     } as Publication;
@@ -282,5 +351,35 @@ export const useAppStore = create<AppState>((set, get) => ({
     get().persist();
   },
 
-  getPublication: (id) => get().publications.find((p) => p.id === id)
+  getPublication: (id) => get().publications.find((p) => p.id === id),
+
+  publishPublication: (id) => {
+    const today = new Date().toISOString().split('T')[0];
+    set((s) => ({
+      publications: s.publications.map((p) =>
+        p.id === id ? { ...p, status: 'published', publishTime: today } : p
+      )
+    }));
+    get().persist();
+  },
+
+  withdrawPublication: (id) => {
+    set((s) => ({
+      publications: s.publications.map((p) =>
+        p.id === id ? { ...p, status: 'draft' } : p
+      )
+    }));
+    get().persist();
+  },
+
+  clearAllData: () => {
+    set({
+      farmers: [...farmerList],
+      industries: [...industryList],
+      events: [...eventList],
+      publications: [...publicationList],
+      initialized: true
+    });
+    get().persist();
+  }
 }));

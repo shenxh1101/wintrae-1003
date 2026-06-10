@@ -223,3 +223,70 @@
 .emptyWrap {
   margin-top: $spacing-xl * 2;
 }
+
+.filterBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: $spacing-sm $page-padding;
+  background: $color-bg-card;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.filterTags {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  flex: 1;
+}
+
+.filterLabel {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  flex-shrink: 0;
+}
+
+.filterTag {
+  display: flex;
+  align-items: center;
+  gap: 4rpx;
+  padding: 4rpx 12rpx;
+  background: rgba($color-primary, 0.1);
+  border-radius: $radius-xs;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+
+  &:hover {
+    opacity: 0.9;
+  }
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.filterTagText {
+  font-size: $font-size-xs;
+  color: $color-primary;
+}
+
+.filterTagClose {
+  font-size: $font-size-sm;
+  color: $color-primary;
+  line-height: 1;
+  margin-left: 4rpx;
+}
+
+.clearFilterBtn {
+  flex-shrink: 0;
+  padding: 4rpx 16rpx;
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  cursor: pointer;
+  transition: color 0.2s ease;
+
+  &:hover {
+    color: $color-primary;
+  }
+}

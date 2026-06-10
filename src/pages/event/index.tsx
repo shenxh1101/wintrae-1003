@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
+import { useDidShow } from '@tarojs/taro';
 import styles from './index.module.scss';
 import Tag from '@/components/Tag';
 import EmptyState from '@/components/EmptyState';
@@ -8,10 +9,57 @@ import { eventStatusList } from '@/data/events';
 import { EventItem } from '@/types';
 import { useAppStore } from '@/store';
 
+const SATISFACTION_MAP: Record<string, string> = {
+  very_satisfied: '非常满意',
+  satisfied: '满意',
+  neutral: '一般',
+  dissatisfied: '不满意',
+  very_dissatisfied: '非常不满意'
+};
+
+const extractGroupName = (event: EventItem, farmers: any[]): string => {
+  const reporter = farmers.find((f) => f.name === event.reporter);
+  if (reporter && reporter.group) {
+    return reporter.group;
+  }
+  const match = event.location.match(/幸福村([一二三四五六七八九十]+组)/);
+  if (match) {
+    return match[1];
+  }
+  const simpleMatch = event.location.match(/([一二三四五六七八九十]+组)/);
+  if (simpleMatch) {
+    return simpleMatch[1];
+  }
+  return '其他';
+};
+
 const EventPage: React.FC = () => {
   const [activeStatus, setActiveStatus] = useState('all');
+  const [filterGroup, setFilterGroup] = useState('');
+  const [filterType, setFilterType] = useState('');
+  const [filterSatisfaction, setFilterSatisfaction] = useState('');
   const [refreshing, setRefreshing] = useState(false);
   const eventList = useAppStore((s) => s.events);
+  const farmers = useAppStore((s) => s.farmers);
+
+  useDidShow(() => {
+    const filter = Taro.getStorageSync('stat_filter');
+    if (filter) {
+      if (filter.status) {
+        setActiveStatus(filter.status);
+      }
+      if (filter.group) {
+        setFilterGroup(filter.group);
+      }
+      if (filter.type) {
+        setFilterType(filter.type);
+      }
+      if (filter.satisfaction) {
+        setFilterSatisfaction(filter.satisfaction);
+      }
+      Taro.removeStorageSync('stat_filter');
+    }
+  });
 
   const statusCounts = useMemo(() => {
     return {
@@ -24,9 +72,26 @@ const EventPage: React.FC = () => {
   }, [eventList]);
 
   const filteredEvents = useMemo(() => {
-    if (activeStatus === 'all') return eventList;
-    return eventList.filter((event) => event.status === activeStatus);
-  }, [activeStatus, eventList]);
+    let result = eventList;
+    if (activeStatus !== 'all') {
+      result = result.filter((event) => event.status === activeStatus);
+    }
+    if (filterGroup) {
+      result = result.filter((event) => {
+        const groupName = extractGroupName(event, farmers);
+        return groupName === filterGroup || event.title.includes(filterGroup) || event.location.includes(filterGroup);
+      });
+    }
+    if (filterType) {
+      result = result.filter((event) => event.type === filterType);
+    }
+    if (filterSatisfaction) {
+      result = result.filter((event) => event.followup?.satisfaction === filterSatisfaction);
+    }
+    return result;
+  }, [activeStatus, filterGroup, filterType, filterSatisfaction, eventList, farmers]);
+
+  const hasActiveFilters = filterGroup || filterType || filterSatisfaction;
 
   const handleEventClick = (event: EventItem) => {
     Taro.navigateTo({
@@ -38,6 +103,13 @@ const EventPage: React.FC = () => {
     Taro.navigateTo({
       url: '/pages/event-create/index'
     });
+  };
+
+  const clearFilters = () => {
+    setFilterGroup('');
+    setFilterType('');
+    setFilterSatisfaction('');
+    Taro.showToast({ title: '已清除筛选', icon: 'none' });
   };
 
   const getPriorityInfo = (priority: string) => {
@@ -108,6 +180,35 @@ const EventPage: React.FC = () => {
         </ScrollView>
       </View>
 
+      {hasActiveFilters && (
+        <View className={styles.filterBar}>
+          <View className={styles.filterTags}>
+            <Text className={styles.filterLabel}>筛选：</Text>
+            {filterGroup && (
+              <View className={styles.filterTag} onClick={() => setFilterGroup('')}>
+                <Text className={styles.filterTagText}>组别：{filterGroup}</Text>
+                <Text className={styles.filterTagClose}>×</Text>
+              </View>
+            )}
+            {filterType && (
+              <View className={styles.filterTag} onClick={() => setFilterType('')}>
+                <Text className={styles.filterTagText}>类型：{filterType}</Text>
+                <Text className={styles.filterTagClose}>×</Text>
+              </View>
+            )}
+            {filterSatisfaction && (
+              <View className={styles.filterTag} onClick={() => setFilterSatisfaction('')}>
+                <Text className={styles.filterTagText}>满意度：{SATISFACTION_MAP[filterSatisfaction]}</Text>
+                <Text className={styles.filterTagClose}>×</Text>
+              </View>
+            )}
+          </View>
+          <View className={styles.clearFilterBtn} onClick={clearFilters}>
+            <Text>清除</Text>
+          </View>
+        </View>
+      )}
+
       <View className={styles.listSection}>
         {filteredEvents.length > 0 ? (
           filteredEvents.map((event) => {
@@ -130,6 +231,9 @@ const EventPage: React.FC = () => {
                   <View className={styles.eventTags}>
                     <Tag text={event.type} type="info" size="small" />
                     <Tag text={event.reporter} type="default" size="small" />
+                    {event.followup && (
+                      <Tag text={`回访：${SATISFACTION_MAP[event.followup.satisfaction]}`} type="success" size="small" />
+                    )}
                   </View>
                 </View>
                 <View className={styles.eventMeta}>
@@ -152,7 +256,7 @@ const EventPage: React.FC = () => {
           })
         ) : (
           <View className={styles.emptyWrap}>
-            <EmptyState text="暂无事件记录" />
+            <EmptyState text={hasActiveFilters ? '当前筛选条件下无事件记录' : '暂无事件记录'} />
           </View>
         )}
       </View>

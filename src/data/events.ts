@@ -16,25 +16,9 @@ export const eventList: EventItem[] = [
     createTime: '2024-06-08 09:30',
     updateTime: '2024-06-09 14:20',
     progress: [
-      {
-        id: 'p1',
-        content: '群众反映问题，已登记受理',
-        operator: '村委会',
-        time: '2024-06-08 09:30'
-      },
-      {
-        id: 'p2',
-        content: '已派单给村主任李主任处理',
-        operator: '村委会',
-        time: '2024-06-08 10:15'
-      },
-      {
-        id: 'p3',
-        content: '现场勘察完成，确定修复方案，预计3天内完工',
-        operator: '李村主任',
-        time: '2024-06-09 14:20',
-        photos: ['https://picsum.photos/id/1015/400/300']
-      }
+      { id: 'p1', content: '群众反映问题，已登记受理', operator: '村委会', time: '2024-06-08 09:30' },
+      { id: 'p2', content: '已派单给村主任李主任处理', operator: '村委会', time: '2024-06-08 10:15' },
+      { id: 'p3', content: '现场勘察完成，确定修复方案，预计3天内完工', operator: '李村主任', time: '2024-06-09 14:20', photos: ['https://picsum.photos/id/1015/400/300'] }
     ]
   },
   {
@@ -51,12 +35,7 @@ export const eventList: EventItem[] = [
     createTime: '2024-06-10 08:00',
     updateTime: '2024-06-10 08:00',
     progress: [
-      {
-        id: 'p1',
-        content: '群众反映问题，已登记受理',
-        operator: '村委会',
-        time: '2024-06-10 08:00'
-      }
+      { id: 'p1', content: '群众反映问题，已登记受理', operator: '村委会', time: '2024-06-10 08:00' }
     ]
   },
   {
@@ -74,31 +53,18 @@ export const eventList: EventItem[] = [
     createTime: '2024-06-01 11:20',
     updateTime: '2024-06-05 16:30',
     progress: [
-      {
-        id: 'p1',
-        content: '群众反映问题，已登记受理',
-        operator: '村委会',
-        time: '2024-06-01 11:20'
-      },
-      {
-        id: 'p2',
-        content: '已派单给村文书王同志处理',
-        operator: '村委会',
-        time: '2024-06-01 14:00'
-      },
-      {
-        id: 'p3',
-        content: '已上门核实情况，收集相关材料',
-        operator: '王文书',
-        time: '2024-06-02 09:30'
-      },
-      {
-        id: 'p4',
-        content: '已上报镇民政办，救助申请已通过',
-        operator: '王文书',
-        time: '2024-06-05 16:30'
-      }
-    ]
+      { id: 'p1', content: '群众反映问题，已登记受理', operator: '村委会', time: '2024-06-01 11:20' },
+      { id: 'p2', content: '已派单给村文书王同志处理', operator: '村委会', time: '2024-06-01 14:00' },
+      { id: 'p3', content: '已上门核实情况，收集相关材料', operator: '王文书', time: '2024-06-02 09:30' },
+      { id: 'p4', content: '已上报镇民政办，救助申请已通过', operator: '王文书', time: '2024-06-05 16:30' }
+    ],
+    followup: {
+      id: 'f3',
+      satisfaction: 'very_satisfied',
+      remark: '群众对处理结果表示非常满意，感谢村委会的及时帮助，解决了家庭的燃眉之急',
+      operator: '村委会',
+      time: '2024-06-08 10:00'
+    }
   },
   {
     id: '4',
@@ -115,24 +81,9 @@ export const eventList: EventItem[] = [
     createTime: '2024-06-07 15:40',
     updateTime: '2024-06-08 10:00',
     progress: [
-      {
-        id: 'p1',
-        content: '群众反映问题，已登记受理',
-        operator: '村委会',
-        time: '2024-06-07 15:40'
-      },
-      {
-        id: 'p2',
-        content: '已派单给村支书张同志处理',
-        operator: '村委会',
-        time: '2024-06-07 16:20'
-      },
-      {
-        id: 'p3',
-        content: '已分别与双方沟通，约定明天现场调解',
-        operator: '张支书',
-        time: '2024-06-08 10:00'
-      }
+      { id: 'p1', content: '群众反映问题，已登记受理', operator: '村委会', time: '2024-06-07 15:40' },
+      { id: 'p2', content: '已派单给村支书张同志处理', operator: '村委会', time: '2024-06-07 16:20' },
+      { id: 'p3', content: '已分别与双方沟通，约定明天现场调解', operator: '张支书', time: '2024-06-08 10:00' }
     ]
   },
   {
@@ -150,25 +101,17 @@ export const eventList: EventItem[] = [
     createTime: '2024-06-05 09:00',
     updateTime: '2024-06-05 15:30',
     progress: [
-      {
-        id: 'p1',
-        content: '群众反映问题，已登记受理',
-        operator: '村委会',
-        time: '2024-06-05 09:00'
-      },
-      {
-        id: 'p2',
-        content: '已联系保洁人员清运',
-        operator: '村委会',
-        time: '2024-06-05 09:30'
-      },
-      {
-        id: 'p3',
-        content: '垃圾已清运完毕，已要求增加清运频次',
-        operator: '赵保洁',
-        time: '2024-06-05 15:30'
-      }
-    ]
+      { id: 'p1', content: '群众反映问题，已登记受理', operator: '村委会', time: '2024-06-05 09:00' },
+      { id: 'p2', content: '已联系保洁人员清运', operator: '村委会', time: '2024-06-05 09:30' },
+      { id: 'p3', content: '垃圾已清运完毕，已要求增加清运频次', operator: '赵保洁', time: '2024-06-05 15:30' }
+    ],
+    followup: {
+      id: 'f5',
+      satisfaction: 'satisfied',
+      remark: '群众对处理结果表示满意，清运及时，环境已恢复整洁',
+      operator: '村委会',
+      time: '2024-06-07 14:30'
+    }
   },
   {
     id: '6',
@@ -184,12 +127,7 @@ export const eventList: EventItem[] = [
     createTime: '2024-06-09 16:50',
     updateTime: '2024-06-09 16:50',
     progress: [
-      {
-        id: 'p1',
-        content: '群众反映问题，已登记受理',
-        operator: '村委会',
-        time: '2024-06-09 16:50'
-      }
+      { id: 'p1', content: '群众反映问题，已登记受理', operator: '村委会', time: '2024-06-09 16:50' }
     ]
   },
   {
@@ -207,25 +145,17 @@ export const eventList: EventItem[] = [
     createTime: '2024-06-02 10:00',
     updateTime: '2024-06-02 11:30',
     progress: [
-      {
-        id: 'p1',
-        content: '群众反映问题，已登记受理',
-        operator: '村委会',
-        time: '2024-06-02 10:00'
-      },
-      {
-        id: 'p2',
-        content: '已与村主任沟通，安排当面解答',
-        operator: '村委会',
-        time: '2024-06-02 10:30'
-      },
-      {
-        id: 'p3',
-        content: '已详细解答相关政策，提供了创业建议',
-        operator: '李村主任',
-        time: '2024-06-02 11:30'
-      }
-    ]
+      { id: 'p1', content: '群众反映问题，已登记受理', operator: '村委会', time: '2024-06-02 10:00' },
+      { id: 'p2', content: '已与村主任沟通，安排当面解答', operator: '村委会', time: '2024-06-02 10:30' },
+      { id: 'p3', content: '已详细解答相关政策，提供了创业建议', operator: '李村主任', time: '2024-06-02 11:30' }
+    ],
+    followup: {
+      id: 'f7',
+      satisfaction: 'very_satisfied',
+      remark: '群众对处理结果表示非常满意，政策讲解清晰，对返乡创业充满信心',
+      operator: '村委会',
+      time: '2024-06-05 09:00'
+    }
   },
   {
     id: '8',
@@ -242,19 +172,16 @@ export const eventList: EventItem[] = [
     createTime: '2024-05-28 14:00',
     updateTime: '2024-05-29 09:00',
     progress: [
-      {
-        id: 'p1',
-        content: '群众反映问题，已登记受理',
-        operator: '村委会',
-        time: '2024-05-28 14:00'
-      },
-      {
-        id: 'p2',
-        content: '申请已批准，活动如期举办',
-        operator: '王文书',
-        time: '2024-05-29 09:00'
-      }
-    ]
+      { id: 'p1', content: '群众反映问题，已登记受理', operator: '村委会', time: '2024-05-28 14:00' },
+      { id: 'p2', content: '申请已批准，活动如期举办', operator: '王文书', time: '2024-05-29 09:00' }
+    ],
+    followup: {
+      id: 'f8',
+      satisfaction: 'satisfied',
+      remark: '群众对处理结果表示满意，活动举办顺利，老人们都很开心',
+      operator: '村委会',
+      time: '2024-06-02 16:00'
+    }
   }
 ];
 

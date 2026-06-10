@@ -39,6 +39,30 @@
   margin-left: 4rpx;
 }
 
+.addRecordBtn {
+  position: absolute;
+  top: $spacing-lg;
+  right: 180rpx;
+  padding: $spacing-sm $spacing-md;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  z-index: 2;
+  box-shadow: 0 4rpx 12rpx rgba($color-primary, 0.3);
+  
+  &:active {
+    transform: scale(0.95);
+  }
+}
+
+.addRecordBtnText {
+  font-size: $font-size-sm;
+  color: $color-text-white;
+  margin-left: 4rpx;
+  font-weight: $font-weight-medium;
+}
+
 .headerInfo {
   background: $color-bg-card;
   padding: $spacing-lg;
@@ -154,4 +178,74 @@
   font-size: $font-size-sm;
   color: $color-text-secondary;
   line-height: $line-height-loose;
+}
+
+.recordList {
+  margin-top: $spacing-sm;
+}
+
+.recordItem {
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.recordHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+}
+
+.recordTime {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.recordType {
+  padding: 4rpx $spacing-sm;
+  border-radius: $radius-xs;
+  font-size: $font-size-xs;
+  
+  &.recordTypeOutput {
+    background: $color-tag-help-bg;
+    color: $color-tag-help-text;
+  }
+  
+  &.recordTypeSubsidy {
+    background: $color-tag-warning-bg;
+    color: $color-tag-warning-text;
+  }
+}
+
+.recordDesc {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  line-height: $line-height-normal;
+  margin-bottom: $spacing-sm;
+}
+
+.recordFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.recordAmount {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-success;
+}
+
+.recordOperator {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.recordEmpty {
+  padding: $spacing-xl 0;
+  text-align: center;
 }

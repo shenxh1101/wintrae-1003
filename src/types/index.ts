@@ -18,6 +18,17 @@ export interface FamilyMember {
   phone?: string;
 }
 
+// 产业项目流水类型
+export interface IndustryRecord {
+  id: string;
+  type: 'output' | 'subsidy';
+  amount: number;
+  unit?: string;
+  description: string;
+  operator: string;
+  time: string;
+}
+
 // 产业项目类型
 export interface IndustryProject {
   id: string;
@@ -33,6 +44,16 @@ export interface IndustryProject {
   createTime: string;
   status: 'active' | 'completed' | 'planning';
   image: string;
+  records: IndustryRecord[];
+}
+
+// 事件回访类型
+export interface EventFollowup {
+  id: string;
+  satisfaction: 'very_satisfied' | 'satisfied' | 'neutral' | 'dissatisfied' | 'very_dissatisfied';
+  remark: string;
+  operator: string;
+  time: string;
 }
 
 // 事件办理类型
@@ -51,6 +72,7 @@ export interface EventItem {
   createTime: string;
   updateTime: string;
   progress: EventProgress[];
+  followup?: EventFollowup;
 }
 
 export interface EventProgress {
@@ -66,6 +88,7 @@ export interface Publication {
   id: string;
   title: string;
   category: 'meeting' | 'fund' | 'notice' | 'policy';
+  status: 'draft' | 'published';
   content: string;
   publisher: string;
   publishTime: string;
@@ -81,4 +104,6 @@ export interface StatisticsData {
   pendingEvents: number;
   processingEvents: number;
   completedEvents: number;
+  followupRate: number;
+  satisfactionRate: number;
 }

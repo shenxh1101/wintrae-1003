@@ -50,6 +50,35 @@
   }
 }
 
+.statusTabs {
+  display: flex;
+  padding: $spacing-sm $page-padding;
+  background: $color-bg-card;
+  gap: $spacing-sm;
+  border-bottom: 1rpx solid $color-divider;
+}
+
+.statusTabItem {
+  flex: 1;
+  padding: $spacing-sm $spacing-md;
+  text-align: center;
+  border-radius: $radius-md;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  background: $color-bg-page;
+  transition: all $transition-fast;
+  
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.statusTabActive {
+  background: $color-primary;
+  color: $color-text-white;
+  font-weight: $font-weight-medium;
+}
+
 .listSection {
   padding: $spacing-md $page-padding;
 }
@@ -72,16 +101,37 @@
   display: flex;
   align-items: flex-start;
   margin-bottom: $spacing-sm;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
 }
 
 .categoryTag {
   flex-shrink: 0;
-  margin-right: $spacing-sm;
   margin-top: 4rpx;
+}
+
+.statusBadge {
+  flex-shrink: 0;
+  padding: 4rpx $spacing-sm;
+  border-radius: $radius-xs;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+  margin-top: 4rpx;
+}
+
+.statusPublished {
+  background: rgba($color-success, 0.1);
+  color: $color-success;
+}
+
+.statusDraft {
+  background: $color-bg-hover;
+  color: $color-text-tertiary;
 }
 
 .publicTitle {
   flex: 1;
+  min-width: 100%;
   font-size: $font-size-lg;
   font-weight: $font-weight-semibold;
   color: $color-text-primary;

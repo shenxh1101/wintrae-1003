@@ -193,7 +193,7 @@ const FarmerEditPage: React.FC = () => {
 
     setTimeout(() => {
       Taro.navigateBack();
-    }, 1500);
+    }, 800);
   };
 
   return (

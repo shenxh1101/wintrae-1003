@@ -26,6 +26,41 @@ const PublicDetailPage: React.FC = () => {
     }
   };
 
+  const handleWithdrawClick = () => {
+    if (!publication) return;
+    Taro.showModal({
+      title: '确认撤回',
+      content: '撤回后该公示将变为草稿状态，是否继续？',
+      success: (res) => {
+        if (res.confirm) {
+          store.withdrawPublication(publication.id);
+          Taro.showToast({ title: '已撤回', icon: 'success' });
+          setTimeout(() => {
+            Taro.navigateBack();
+          }, 1000);
+        }
+      }
+    });
+  };
+
+  const handlePublishClick = () => {
+    if (!publication) return;
+    Taro.showModal({
+      title: '确认发布',
+      content: '发布后该公示将对外公开，是否继续？',
+      success: (res) => {
+        if (res.confirm) {
+          store.publishPublication(publication.id);
+          const updated = store.getPublication(publication.id);
+          if (updated) {
+            setPublication(updated);
+          }
+          Taro.showToast({ title: '已发布', icon: 'success' });
+        }
+      }
+    });
+  };
+
   const getCategoryInfo = (category: string) => {
     const categoryMap: Record<string, { text: string; icon: string }> = {
       meeting: { text: '会议纪要', icon: '📋' },
@@ -34,6 +69,21 @@ const PublicDetailPage: React.FC = () => {
       policy: { text: '政策解读', icon: '📜' }
     };
     return categoryMap[category] || { text: category, icon: '📄' };
+  };
+
+  const getStatusBadgeClass = (status: string) => {
+    return status === 'published' ? styles.statusPublished : styles.statusDraft;
+  };
+
+  const getStatusText = (status: string) => {
+    return status === 'published' ? '已发布' : '草稿';
+  };
+
+  const getPublishTimeText = (pub: Publication) => {
+    if (pub.status === 'draft') {
+      return '未发布';
+    }
+    return pub.publishTime || '未发布';
   };
 
   if (!publication) {
@@ -45,6 +95,7 @@ const PublicDetailPage: React.FC = () => {
   }
 
   const categoryInfo = getCategoryInfo(publication.category);
+  const isPublished = publication.status === 'published';
 
   return (
     <ScrollView className={styles.detailPage} scrollY>
@@ -52,7 +103,12 @@ const PublicDetailPage: React.FC = () => {
         <View className={styles.categoryTag}>
           <Text>{categoryInfo.icon} {categoryInfo.text}</Text>
         </View>
-        <Text className={styles.titleText}>{publication.title}</Text>
+        <View className={styles.titleRow}>
+          <Text className={styles.titleText}>{publication.title}</Text>
+          <View className={`${styles.statusBadge} ${getStatusBadgeClass(publication.status)}`}>
+            <Text>{getStatusText(publication.status)}</Text>
+          </View>
+        </View>
         <View className={styles.metaRow}>
           <View className={styles.metaLeft}>
             <Text>👤 {publication.publisher}</Text>
@@ -82,8 +138,14 @@ const PublicDetailPage: React.FC = () => {
             <Text className={styles.infoValue}>{publication.publisher}</Text>
           </View>
           <View className={styles.infoItem}>
+            <Text className={styles.infoLabel}>发布状态</Text>
+            <View className={`${styles.infoStatusBadge} ${getStatusBadgeClass(publication.status)}`}>
+              <Text>{getStatusText(publication.status)}</Text>
+            </View>
+          </View>
+          <View className={styles.infoItem}>
             <Text className={styles.infoLabel}>发布时间</Text>
-            <Text className={styles.infoValue}>{publication.publishTime}</Text>
+            <Text className={styles.infoValue}>{getPublishTimeText(publication)}</Text>
           </View>
           <View className={styles.infoItem}>
             <Text className={styles.infoLabel}>阅读量</Text>
@@ -93,9 +155,20 @@ const PublicDetailPage: React.FC = () => {
       </View>
 
       <View className={styles.editBar}>
-        <View className={styles.editBtn} onClick={handleEditClick}>
-          <Text className={styles.editBtnText}>✏️ 编辑</Text>
-        </View>
+        {isPublished ? (
+          <View className={styles.dangerBtn} onClick={handleWithdrawClick}>
+            <Text className={styles.dangerBtnText}>↩️ 撤回</Text>
+          </View>
+        ) : (
+          <>
+            <View className={styles.secondaryBtn} onClick={handleEditClick}>
+              <Text className={styles.secondaryBtnText}>✏️ 编辑</Text>
+            </View>
+            <View className={styles.primaryBtn} onClick={handlePublishClick}>
+              <Text className={styles.primaryBtnText}>🚀 发布</Text>
+            </View>
+          </>
+        )}
       </View>
     </ScrollView>
   );

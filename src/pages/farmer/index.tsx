@@ -24,7 +24,7 @@ const FarmerPage: React.FC = () => {
       const matchGroup = activeGroup === '全部' || farmer.group === activeGroup;
       return matchSearch && matchGroup;
     });
-  }, [searchText, activeGroup]);
+  }, [farmers, searchText, activeGroup]);
 
   const handleFarmerClick = (farmer: Farmer) => {
     Taro.navigateTo({

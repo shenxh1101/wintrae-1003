@@ -8,20 +8,35 @@ import { publicationCategoryList } from '@/data/publications';
 import { Publication } from '@/types';
 import { useAppStore } from '@/store';
 
+const STATUS_TABS = [
+  { label: '全部', value: 'all' },
+  { label: '已发布', value: 'published' },
+  { label: '草稿', value: 'draft' }
+];
+
 const PublicPage: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('all');
+  const [activeStatus, setActiveStatus] = useState('all');
   const [refreshing, setRefreshing] = useState(false);
   const publications = useAppStore((s) => s.publications);
 
   const filteredPublications = useMemo(() => {
-    if (activeCategory === 'all') return publications;
-    return publications.filter((pub) => pub.category === activeCategory);
-  }, [activeCategory, publications]);
+    return publications.filter((pub) => {
+      const categoryMatch = activeCategory === 'all' || pub.category === activeCategory;
+      const statusMatch = activeStatus === 'all'
+        ? true
+        : activeStatus === 'published'
+          ? pub.status === 'published'
+          : pub.status === 'draft';
+      return categoryMatch && statusMatch;
+    });
+  }, [activeCategory, activeStatus, publications]);
 
   const handlePublicationClick = (pub: Publication) => {
-    Taro.navigateTo({
-      url: `/pages/public-detail/index?id=${pub.id}`
-    });
+    const url = pub.status === 'draft'
+      ? `/pages/public-edit/index?id=${pub.id}`
+      : `/pages/public-detail/index?id=${pub.id}`;
+    Taro.navigateTo({ url });
   };
 
   const handleAddClick = () => {
@@ -38,6 +53,14 @@ const PublicPage: React.FC = () => {
       policy: 'success'
     };
     return typeMap[category] || 'primary';
+  };
+
+  const getStatusBadgeClass = (status: string) => {
+    return status === 'published' ? styles.statusPublished : styles.statusDraft;
+  };
+
+  const getStatusText = (status: string) => {
+    return status === 'published' ? '已发布' : '草稿';
   };
 
   const handleRefresh = () => {
@@ -80,6 +103,18 @@ const PublicPage: React.FC = () => {
         </ScrollView>
       </View>
 
+      <View className={styles.statusTabs}>
+        {STATUS_TABS.map((tab) => (
+          <View
+            key={tab.value}
+            className={`${styles.statusTabItem} ${activeStatus === tab.value ? styles.statusTabActive : ''}`}
+            onClick={() => setActiveStatus(tab.value)}
+          >
+            <Text>{tab.label}</Text>
+          </View>
+        ))}
+      </View>
+
       <View className={styles.listSection}>
         {filteredPublications.length > 0 ? (
           filteredPublications.map((pub) => (
@@ -95,6 +130,9 @@ const PublicPage: React.FC = () => {
                     type={getCategoryTagType(pub.category)}
                     size="small"
                   />
+                </View>
+                <View className={`${styles.statusBadge} ${getStatusBadgeClass(pub.status)}`}>
+                  <Text>{getStatusText(pub.status)}</Text>
                 </View>
                 <Text className={styles.publicTitle}>{pub.title}</Text>
               </View>
@@ -112,7 +150,7 @@ const PublicPage: React.FC = () => {
                     <Text>{pub.views}</Text>
                   </View>
                 </View>
-                <Text className={styles.publishTime}>{pub.publishTime}</Text>
+                <Text className={styles.publishTime}>{pub.status === 'draft' ? '未发布' : pub.publishTime}</Text>
               </View>
             </View>
           ))

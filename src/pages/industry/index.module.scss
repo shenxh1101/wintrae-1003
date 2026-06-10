@@ -46,6 +46,16 @@
   z-index: 10;
 }
 
+.filterLabel {
+  margin-bottom: $spacing-sm;
+}
+
+.filterLabelText {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  font-weight: $font-weight-medium;
+}
+
 .filterScroll {
   white-space: nowrap;
 }
@@ -68,6 +78,34 @@
 .filterActive {
   background: $color-primary;
   color: $color-text-white;
+}
+
+.summarySection {
+  display: flex;
+  gap: $spacing-md;
+  padding: 0 $page-padding $spacing-md;
+}
+
+.summaryCard {
+  flex: 1;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-md;
+  text-align: center;
+  box-shadow: $shadow-card;
+}
+
+.summaryLabel {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  display: block;
+  margin-bottom: $spacing-xs;
+}
+
+.summaryValue {
+  font-size: $font-size-xl;
+  font-weight: $font-weight-bold;
+  color: $color-primary;
 }
 
 .listSection {
