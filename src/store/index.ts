@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import Taro from '@tarojs/taro';
-import { Farmer, IndustryProject, EventItem, Publication, IndustryRecord, EventFollowup, StatFilter, MonthlyStat } from '@/types';
+import { Farmer, IndustryProject, EventItem, Publication, IndustryRecord, EventFollowup, StatFilter, MonthlyStat, PublicationView } from '@/types';
 import { farmerList } from '@/data/farmers';
 import { industryList } from '@/data/industries';
 import { eventList } from '@/data/events';
@@ -37,7 +37,7 @@ interface AppState {
   deleteIndustry: (id: string) => void;
   getIndustry: (id: string) => IndustryProject | undefined;
   addIndustryRecord: (projectId: string, record: Omit<IndustryRecord, 'id'>) => void;
-  getMonthlyStats: (projectId?: string) => MonthlyStat[];
+  getMonthlyStats: (projectId?: string, filters?: { type?: string; cooperative?: string }) => MonthlyStat[];
 
   addEvent: (event: Omit<EventItem, 'id'>) => void;
   updateEvent: (id: string, event: Partial<EventItem>) => void;
@@ -54,6 +54,7 @@ interface AppState {
   publishPublication: (id: string) => void;
   withdrawPublication: (id: string) => void;
   savePublishedPublication: (id: string, data: Partial<Publication>) => void;
+  incrementPublicationViews: (id: string, reader?: string) => void;
 
   setStatFilter: (filter: StatFilter) => void;
   getStatFilter: () => StatFilter;
@@ -202,11 +203,18 @@ export const useAppStore = create<AppState>((set, get) => ({
     get().persist();
   },
 
-  getMonthlyStats: (projectId) => {
+  getMonthlyStats: (projectId, filters) => {
     const { industries } = get();
-    const targetProjects = projectId
+    let targetProjects = projectId
       ? industries.filter((p) => p.id === projectId)
-      : industries;
+      : [...industries];
+
+    if (filters?.type) {
+      targetProjects = targetProjects.filter((p) => p.type === filters.type);
+    }
+    if (filters?.cooperative) {
+      targetProjects = targetProjects.filter((p) => p.cooperative === filters.cooperative);
+    }
 
     const monthMap = new Map<string, { output: number; outputUnit: string; subsidy: number; recordCount: number }>();
 
@@ -431,6 +439,26 @@ export const useAppStore = create<AppState>((set, get) => ({
       publications: s.publications.map((p) =>
         p.id === id ? { ...p, ...data, status: 'published' } : p
       )
+    }));
+    get().persist();
+  },
+
+  incrementPublicationViews: (id, reader) => {
+    const t = now();
+    const newView: PublicationView = {
+      id: generateId(),
+      reader: reader || '群众',
+      time: t
+    };
+    set((s) => ({
+      publications: s.publications.map((p) => {
+        if (p.id !== id) return p;
+        return {
+          ...p,
+          views: p.views + 1,
+          viewRecords: [...(p.viewRecords || []), newView]
+        };
+      })
     }));
     get().persist();
   },

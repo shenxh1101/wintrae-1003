@@ -15,6 +15,10 @@ const SATISFACTION_MAP: Record<string, string> = {
   very_dissatisfied: '非常不满意'
 };
 
+const SATISFACTION_VALUES: Array<EventFollowup['satisfaction']> = [
+  'very_satisfied', 'satisfied', 'neutral', 'dissatisfied', 'very_dissatisfied'
+];
+
 const SATISFACTION_OPTIONS = [
   { label: '全部满意度', value: 'all' },
   { label: '非常满意', value: 'very_satisfied' },
@@ -34,6 +38,7 @@ const TAB_OPTIONS = [
 const FollowupPage: React.FC = () => {
   const store = useAppStore();
   const events = useAppStore((s) => s.events);
+  const addEventFollowup = useAppStore((s) => s.addEventFollowup);
 
   const [activeTab, setActiveTab] = useState('all');
   const [selectedSatisfaction, setSelectedSatisfaction] = useState('all');
@@ -126,6 +131,40 @@ const FollowupPage: React.FC = () => {
     });
   };
 
+  const getCurrentTime = () => {
+    const d = new Date();
+    const pad = (n: number) => n.toString().padStart(2, '0');
+    return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
+  };
+
+  const handleQuickFollowup = (eventId: string, e: any) => {
+    e.stopPropagation && e.stopPropagation();
+    Taro.showActionSheet({
+      itemList: SATISFACTION_VALUES.map((v) => SATISFACTION_MAP[v]),
+      success: (res) => {
+        const satisfaction = SATISFACTION_VALUES[res.tapIndex];
+        Taro.showModal({
+          title: '回访说明',
+          editable: true,
+          placeholderText: '请输入回访说明...',
+          success: (modalRes) => {
+            if (modalRes.confirm) {
+              const remark = (modalRes.content || '').trim();
+              const time = getCurrentTime();
+              addEventFollowup(eventId, {
+                satisfaction,
+                remark,
+                operator: '村委会',
+                time
+              });
+              Taro.showToast({ title: '回访完成', icon: 'success' });
+            }
+          }
+        });
+      }
+    });
+  };
+
   const handleSatisfactionChange = (e: any) => {
     const index = Number(e.detail.value);
     setSelectedSatisfaction(SATISFACTION_OPTIONS[index].value);
@@ -160,8 +199,23 @@ const FollowupPage: React.FC = () => {
     setEndDate('');
   };
 
+  const pendingEvents = completedEvents.filter((e) => !e.followup);
+
   return (
     <ScrollView className={styles.page} scrollY>
+      {pendingEvents.length > 0 && (
+        <View className={styles.reminderBanner}>
+          <View className={styles.reminderIcon}>🔔</View>
+          <View className={styles.reminderContent}>
+            <Text className={styles.reminderTitle}>有 {pendingEvents.length} 件待回访</Text>
+            <Text className={styles.reminderDesc}>及时回访有助于提升群众满意度</Text>
+          </View>
+          <View className={styles.reminderAction} onClick={() => setActiveTab('pending')}>
+            <Text>查看</Text>
+          </View>
+        </View>
+      )}
+
       <View className={styles.statsSection}>
         <View className={styles.statCard}>
           <Text className={styles.statValue}>{stats.total}</Text>
@@ -317,8 +371,18 @@ const FollowupPage: React.FC = () => {
                   </View>
                 )}
                 <View className={styles.cardFooter}>
-                  <Text className={styles.footerText}>📍 {event.location}</Text>
-                  <Text className={styles.footerText}>🕐 {event.createTime}</Text>
+                  <View className={styles.footerLeft}>
+                    <Text className={styles.footerText}>📍 {event.location}</Text>
+                    <Text className={styles.footerText}>🕐 {event.createTime}</Text>
+                  </View>
+                  {!followup && (
+                    <View
+                      className={styles.quickFollowupBtn}
+                      onClick={(e) => handleQuickFollowup(event.id, e)}
+                    >
+                      <Text>📞 立即回访</Text>
+                    </View>
+                  )}
                 </View>
               </View>
             );

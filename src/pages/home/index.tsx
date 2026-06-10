@@ -25,13 +25,16 @@ const HomePage: React.FC = () => {
     const pendingEvents = events.filter(
       (e) => e.status === 'pending' || e.status === 'processing'
     ).length;
+    const completedEvents = events.filter((e) => e.status === 'completed');
+    const pendingFollowup = completedEvents.filter((e) => !e.followup).length;
 
     return {
       totalFarmers: farmers.length,
       totalPopulation,
       totalFarmland: totalFarmland.toFixed(1),
       totalProjects: industries.length,
-      pendingEvents
+      pendingEvents,
+      pendingFollowup
     };
   }, [farmers, industries, events]);
 
@@ -45,9 +48,9 @@ const HomePage: React.FC = () => {
     { icon: '📋', text: '事件办理', color: 'blue', path: '/pages/event/index', isTab: true },
     { icon: '📢', text: '公开公示', color: 'red', path: '/pages/public/index', isTab: true },
     { icon: '📊', text: '统计查询', color: 'purple', path: '/pages/statistics/index', isTab: false },
+    { icon: '�', text: '回访台账', color: 'blue', path: '/pages/followup/index', isTab: false },
     { icon: '📝', text: '新增农户', color: 'green', path: '/pages/farmer-edit/index', isTab: false },
-    { icon: '➕', text: '上报事件', color: 'blue', path: '/pages/event-create/index', isTab: false },
-    { icon: '💡', text: '政策咨询', color: 'orange', path: '', isTab: false }
+    { icon: '➕', text: '上报事件', color: 'blue', path: '/pages/event-create/index', isTab: false }
   ];
 
   const getTodayDate = () => {
@@ -136,6 +139,20 @@ const HomePage: React.FC = () => {
           <StatCard title="待办事件" value={stats.pendingEvents} unit="件" color="#F53F3F" />
         </View>
       </View>
+
+      {stats.pendingFollowup > 0 && (
+        <View
+          className={styles.followupReminder}
+          onClick={() => Taro.navigateTo({ url: '/pages/followup/index' })}
+        >
+          <View className={styles.reminderIcon}>🔔</View>
+          <View className={styles.reminderContent}>
+            <Text className={styles.reminderTitle}>有 {stats.pendingFollowup} 件已完成事件待回访</Text>
+            <Text className={styles.reminderDesc}>及时回访，提升群众满意度</Text>
+          </View>
+          <Text className={styles.reminderArrow}>›</Text>
+        </View>
+      )}
 
       <View className={styles.quickSection}>
         <View className={styles.sectionHeader}>

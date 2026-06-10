@@ -75,6 +75,50 @@
   margin-bottom: 0;
 }
 
+.followupReminder {
+  display: flex;
+  align-items: center;
+  margin: $spacing-lg $page-padding 0;
+  padding: $spacing-md $spacing-lg;
+  background: linear-gradient(135deg, #FFF7E6 0%, #FFEDD5 100%);
+  border-radius: $radius-md;
+  border: 1px solid rgba($color-warning, 0.3);
+  box-shadow: 0 4rpx 12rpx rgba($color-warning, 0.1);
+
+  &:active {
+    opacity: 0.9;
+  }
+}
+
+.reminderIcon {
+  font-size: 48rpx;
+  margin-right: $spacing-md;
+}
+
+.reminderContent {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.reminderTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-warning;
+}
+
+.reminderDesc {
+  font-size: $font-size-xs;
+  color: rgba($color-warning, 0.75);
+}
+
+.reminderArrow {
+  font-size: $font-size-lg;
+  color: $color-warning;
+  font-weight: $font-weight-bold;
+}
+
 .quickSection {
   margin: $spacing-xl $page-padding 0;
 }

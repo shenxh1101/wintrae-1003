@@ -241,3 +241,111 @@
   font-weight: 500;
   color: $color-text-white;
 }
+
+.subTitle {
+  font-size: 26rpx;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+}
+
+.emptyText {
+  font-size: 24rpx;
+  color: $color-text-tertiary;
+  text-align: center;
+  padding: $spacing-md 0;
+}
+
+.viewTrendSection {
+  margin-bottom: $spacing-lg;
+}
+
+.trendChart {
+  display: flex;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 12rpx;
+  height: 200rpx;
+  padding: $spacing-md 0;
+}
+
+.trendItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.trendBar {
+  width: 100%;
+  height: 140rpx;
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+}
+
+.trendBarFill {
+  width: 60%;
+  background: linear-gradient(180deg, $color-primary-light 0%, $color-primary 100%);
+  border-radius: 8rpx 8rpx 0 0;
+  min-height: 8rpx;
+}
+
+.trendCount {
+  font-size: 22rpx;
+  color: $color-primary;
+  font-weight: $font-weight-medium;
+}
+
+.trendDay {
+  font-size: 20rpx;
+  color: $color-text-tertiary;
+}
+
+.viewRecordsSection {
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+}
+
+.viewRecordsList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.viewRecordItem {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.viewRecordAvatar {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 50%;
+  background: $color-bg-hover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+  flex-shrink: 0;
+}
+
+.viewRecordInfo {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 4rpx;
+}
+
+.viewRecordReader {
+  font-size: 26rpx;
+  color: $color-text-primary;
+  font-weight: $font-weight-medium;
+}
+
+.viewRecordTime {
+  font-size: 22rpx;
+  color: $color-text-tertiary;
+}

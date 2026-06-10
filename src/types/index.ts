@@ -83,6 +83,12 @@ export interface EventProgress {
   photos?: string[];
 }
 
+export interface PublicationView {
+  id: string;
+  reader: string;
+  time: string;
+}
+
 // 公开公示类型
 export interface Publication {
   id: string;
@@ -93,6 +99,7 @@ export interface Publication {
   publisher: string;
   publishTime: string;
   views: number;
+  viewRecords?: PublicationView[];
 }
 
 // 统计筛选条件

@@ -1,30 +1,55 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
 import Taro, { useRouter, useDidShow } from '@tarojs/taro';
 import styles from './index.module.scss';
-import { Publication } from '@/types';
+import { Publication, PublicationView } from '@/types';
 import { useAppStore } from '@/store';
+
+const CADRE_KEY = 'public_role';
 
 const PublicDetailPage: React.FC = () => {
   const router = useRouter();
   const store = useAppStore();
+  const getPublication = useAppStore((s) => s.getPublication);
+  const publications = useAppStore((s) => s.publications);
+  const incrementPublicationViews = useAppStore((s) => s.incrementPublicationViews);
   const [publication, setPublication] = useState<Publication | null>(null);
+  const [isCadre, setIsCadre] = useState(true);
+  const [viewCounted, setViewCounted] = useState(false);
+
+  const loadRole = () => {
+    try {
+      const role = Taro.getStorageSync(CADRE_KEY);
+      setIsCadre(role === 'cadre' || !role);
+    } catch (e) {
+      setIsCadre(true);
+    }
+  };
 
   const loadPublication = () => {
     const id = router.params.id;
-    const found = store.getPublication(id);
+    const found = getPublication(id);
     if (found) {
       setPublication(found);
+      if (!isCadre && found.status === 'published' && !viewCounted) {
+        incrementPublicationViews(id, '群众');
+        setViewCounted(true);
+      }
     }
   };
 
   useDidShow(() => {
+    loadRole();
     loadPublication();
   });
 
   useEffect(() => {
+    loadRole();
+  }, []);
+
+  useEffect(() => {
     loadPublication();
-  }, [router.params.id, store]);
+  }, [router.params.id, getPublication, publications, isCadre]);
 
   const handleEditClick = () => {
     if (publication) {
@@ -113,6 +138,30 @@ const PublicDetailPage: React.FC = () => {
     return pub.publishTime || '未发布';
   };
 
+  const viewTrend = useMemo(() => {
+    if (!publication?.viewRecords || publication.viewRecords.length === 0) {
+      return { days: [], maxCount: 1 };
+    }
+    const dayMap = new Map<string, number>();
+    publication.viewRecords.forEach((r: PublicationView) => {
+      const day = r.time.split(' ')[0];
+      dayMap.set(day, (dayMap.get(day) || 0) + 1);
+    });
+    const days = Array.from(dayMap.entries())
+      .map(([day, count]) => ({ day, count }))
+      .sort((a, b) => a.day.localeCompare(b.day))
+      .slice(-7);
+    const maxCount = Math.max(...days.map((d) => d.count), 1);
+    return { days, maxCount };
+  }, [publication]);
+
+  const recentViews = useMemo(() => {
+    if (!publication?.viewRecords) return [];
+    return [...publication.viewRecords]
+      .sort((a, b) => b.time.localeCompare(a.time))
+      .slice(0, 5);
+  }, [publication]);
+
   if (!publication) {
     return (
       <View className={styles.detailPage}>
@@ -124,6 +173,7 @@ const PublicDetailPage: React.FC = () => {
   const categoryInfo = getCategoryInfo(publication.category);
   const isPublished = publication.status === 'published';
   const isWithdrawn = publication.status === 'withdrawn';
+  const showAdminBar = isCadre;
 
   return (
     <ScrollView className={styles.detailPage} scrollY>
@@ -182,29 +232,83 @@ const PublicDetailPage: React.FC = () => {
         </View>
       </View>
 
-      <View className={styles.editBar}>
-        {isPublished ? (
-          <>
-            <View className={styles.secondaryBtn} onClick={handleEditClick}>
-              <Text className={styles.secondaryBtnText}>✏️ 编辑内容</Text>
-            </View>
-            <View className={styles.dangerBtn} onClick={handleWithdrawClick}>
-              <Text className={styles.dangerBtnText}>↩️ 撤回</Text>
-            </View>
-          </>
-        ) : (
-          <>
-            <View className={styles.secondaryBtn} onClick={handleEditClick}>
-              <Text className={styles.secondaryBtnText}>✏️ 编辑</Text>
-            </View>
-            <View className={styles.primaryBtn} onClick={handlePublishClick}>
-              <Text className={styles.primaryBtnText}>
-                {isWithdrawn ? '🚀 重新发布' : '🚀 发布'}
-              </Text>
-            </View>
-          </>
-        )}
-      </View>
+      {isCadre && (
+        <View className={styles.infoCard}>
+          <Text className={styles.sectionTitle}>
+            <Text className={styles.titleIcon}>📊</Text>
+            阅读情况
+          </Text>
+
+          <View className={styles.viewTrendSection}>
+            <Text className={styles.subTitle}>近7日浏览趋势</Text>
+            {viewTrend.days.length > 0 ? (
+              <View className={styles.trendChart}>
+                {viewTrend.days.map((item) => (
+                  <View key={item.day} className={styles.trendItem}>
+                    <View className={styles.trendBar}>
+                      <View
+                        className={styles.trendBarFill}
+                        style={{ height: `${(item.count / viewTrend.maxCount) * 100}%` }}
+                      />
+                    </View>
+                    <Text className={styles.trendCount}>{item.count}</Text>
+                    <Text className={styles.trendDay}>{item.day.slice(5)}</Text>
+                  </View>
+                ))}
+              </View>
+            ) : (
+              <Text className={styles.emptyText}>暂无浏览记录</Text>
+            )}
+          </View>
+
+          <View className={styles.viewRecordsSection}>
+            <Text className={styles.subTitle}>最近阅读记录</Text>
+            {recentViews.length > 0 ? (
+              <View className={styles.viewRecordsList}>
+                {recentViews.map((r: PublicationView) => (
+                  <View key={r.id} className={styles.viewRecordItem}>
+                    <View className={styles.viewRecordAvatar}>
+                      <Text>👤</Text>
+                    </View>
+                    <View className={styles.viewRecordInfo}>
+                      <Text className={styles.viewRecordReader}>{r.reader}</Text>
+                      <Text className={styles.viewRecordTime}>{r.time}</Text>
+                    </View>
+                  </View>
+                ))}
+              </View>
+            ) : (
+              <Text className={styles.emptyText}>暂无阅读记录</Text>
+            )}
+          </View>
+        </View>
+      )}
+
+      {showAdminBar && (
+        <View className={styles.editBar}>
+          {isPublished ? (
+            <>
+              <View className={styles.secondaryBtn} onClick={handleEditClick}>
+                <Text className={styles.secondaryBtnText}>✏️ 编辑内容</Text>
+              </View>
+              <View className={styles.dangerBtn} onClick={handleWithdrawClick}>
+                <Text className={styles.dangerBtnText}>↩️ 撤回</Text>
+              </View>
+            </>
+          ) : (
+            <>
+              <View className={styles.secondaryBtn} onClick={handleEditClick}>
+                <Text className={styles.secondaryBtnText}>✏️ 编辑</Text>
+              </View>
+              <View className={styles.primaryBtn} onClick={handlePublishClick}>
+                <Text className={styles.primaryBtnText}>
+                  {isWithdrawn ? '🚀 重新发布' : '🚀 发布'}
+                </Text>
+              </View>
+            </>
+          )}
+        </View>
+      )}
     </ScrollView>
   );
 };

@@ -76,6 +76,18 @@ const EventPage: React.FC = () => {
     loadFilterFromStore();
   });
 
+  const completedWithFollowup = useMemo(() => {
+    return eventList.filter((e) => e.status === 'completed');
+  }, [eventList]);
+
+  const pendingFollowupCount = useMemo(() => {
+    return completedWithFollowup.filter((e) => !e.followup).length;
+  }, [completedWithFollowup]);
+
+  const goToFollowup = () => {
+    Taro.navigateTo({ url: '/pages/followup/index' });
+  };
+
   const statusCounts = useMemo(() => {
     return {
       all: eventList.length,
@@ -204,6 +216,17 @@ const EventPage: React.FC = () => {
       refresherTriggered={refreshing}
       onRefresherRefresh={() => setRefreshing(true)}
     >
+      {pendingFollowupCount > 0 && (
+        <View className={styles.followupEntry} onClick={goToFollowup}>
+          <View className={styles.followupEntryIcon}>📞</View>
+          <View className={styles.followupEntryContent}>
+            <Text className={styles.followupEntryTitle}>回访台账</Text>
+            <Text className={styles.followupEntryDesc}>有 {pendingFollowupCount} 件待回访事件</Text>
+          </View>
+          <Text className={styles.followupEntryArrow}>›</Text>
+        </View>
+      )}
+
       <View className={styles.tabsBar}>
         <ScrollView
           className={styles.tabsScroll}
