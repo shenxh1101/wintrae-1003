@@ -4,21 +4,29 @@ import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
 import Tag from '@/components/Tag';
 import EmptyState from '@/components/EmptyState';
-import { publicationList, publicationCategoryList } from '@/data/publications';
+import { publicationCategoryList } from '@/data/publications';
 import { Publication } from '@/types';
+import { useAppStore } from '@/store';
 
 const PublicPage: React.FC = () => {
   const [activeCategory, setActiveCategory] = useState('all');
   const [refreshing, setRefreshing] = useState(false);
+  const publications = useAppStore((s) => s.publications);
 
   const filteredPublications = useMemo(() => {
-    if (activeCategory === 'all') return publicationList;
-    return publicationList.filter((pub) => pub.category === activeCategory);
-  }, [activeCategory]);
+    if (activeCategory === 'all') return publications;
+    return publications.filter((pub) => pub.category === activeCategory);
+  }, [activeCategory, publications]);
 
   const handlePublicationClick = (pub: Publication) => {
     Taro.navigateTo({
       url: `/pages/public-detail/index?id=${pub.id}`
+    });
+  };
+
+  const handleAddClick = () => {
+    Taro.navigateTo({
+      url: '/pages/public-edit/index'
     });
   };
 
@@ -113,6 +121,10 @@ const PublicPage: React.FC = () => {
             <EmptyState text="暂无公示信息" />
           </View>
         )}
+      </View>
+
+      <View className={styles.fab} onClick={handleAddClick}>
+        <Text className={styles.fabText}>+</Text>
       </View>
     </ScrollView>
   );

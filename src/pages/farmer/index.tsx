@@ -4,16 +4,18 @@ import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
 import Tag from '@/components/Tag';
 import EmptyState from '@/components/EmptyState';
-import { farmerList, groupList } from '@/data/farmers';
+import { groupList } from '@/data/farmers';
+import { useAppStore } from '@/store';
 import { Farmer } from '@/types';
 
 const FarmerPage: React.FC = () => {
   const [searchText, setSearchText] = useState('');
   const [activeGroup, setActiveGroup] = useState('全部');
   const [refreshing, setRefreshing] = useState(false);
+  const farmers = useAppStore((s) => s.farmers);
 
   const filteredFarmers = useMemo(() => {
-    return farmerList.filter((farmer) => {
+    return farmers.filter((farmer) => {
       const matchSearch =
         !searchText ||
         farmer.name.includes(searchText) ||

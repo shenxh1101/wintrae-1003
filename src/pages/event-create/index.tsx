@@ -3,8 +3,10 @@ import { View, Text, Input, Textarea, Image, ScrollView } from '@tarojs/componen
 import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
 import { eventTypeList } from '@/data/events';
+import { useAppStore } from '@/store';
 
 const EventCreatePage: React.FC = () => {
+  const addEvent = useAppStore((s) => s.addEvent);
   const [formData, setFormData] = useState({
     title: '',
     type: '',
@@ -95,6 +97,17 @@ const EventCreatePage: React.FC = () => {
       return;
     }
 
+    addEvent({
+      title: formData.title,
+      type: formData.type,
+      description: formData.description,
+      reporter: formData.reporter || '匿名村民',
+      reporterPhone: formData.reporterPhone || '',
+      location: formData.location || '未填写',
+      priority: formData.priority,
+      photos: formData.photos
+    });
+
     Taro.showToast({
       title: '提交成功',
       icon: 'success'
@@ -102,7 +115,7 @@ const EventCreatePage: React.FC = () => {
 
     setTimeout(() => {
       Taro.navigateBack();
-    }, 1500);
+    }, 1000);
   };
 
   const getPriorityClass = (priority: string) => {

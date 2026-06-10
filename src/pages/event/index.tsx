@@ -4,12 +4,14 @@ import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
 import Tag from '@/components/Tag';
 import EmptyState from '@/components/EmptyState';
-import { eventList, eventStatusList } from '@/data/events';
+import { eventStatusList } from '@/data/events';
 import { EventItem } from '@/types';
+import { useAppStore } from '@/store';
 
 const EventPage: React.FC = () => {
   const [activeStatus, setActiveStatus] = useState('all');
   const [refreshing, setRefreshing] = useState(false);
+  const eventList = useAppStore((s) => s.events);
 
   const statusCounts = useMemo(() => {
     return {
@@ -19,12 +21,12 @@ const EventPage: React.FC = () => {
       completed: eventList.filter((e) => e.status === 'completed').length,
       closed: eventList.filter((e) => e.status === 'closed').length
     };
-  }, []);
+  }, [eventList]);
 
   const filteredEvents = useMemo(() => {
     if (activeStatus === 'all') return eventList;
     return eventList.filter((event) => event.status === activeStatus);
-  }, [activeStatus]);
+  }, [activeStatus, eventList]);
 
   const handleEventClick = (event: EventItem) => {
     Taro.navigateTo({

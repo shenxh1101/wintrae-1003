@@ -3,20 +3,28 @@ import { View, Text, Image, ScrollView } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import styles from './index.module.scss';
 import Tag from '@/components/Tag';
-import { industryList } from '@/data/industries';
+import { useAppStore } from '@/store';
 import { IndustryProject } from '@/types';
 
 const IndustryDetailPage: React.FC = () => {
   const router = useRouter();
+  const getIndustry = useAppStore((s) => s.getIndustry);
+  const industries = useAppStore((s) => s.industries);
   const [project, setProject] = useState<IndustryProject | null>(null);
 
   useEffect(() => {
     const id = router.params.id;
-    const found = industryList.find((p) => p.id === id);
+    const found = getIndustry(id);
     if (found) {
       setProject(found);
     }
-  }, [router.params.id]);
+  }, [router.params.id, getIndustry, industries]);
+
+  const handleEdit = () => {
+    Taro.navigateTo({
+      url: `/pages/industry-edit/index?id=${project?.id}`
+    });
+  };
 
   const getStatusInfo = (status: string) => {
     const statusMap: Record<string, { text: string; type: 'primary' | 'success' | 'warning' | 'info' }> = {
@@ -39,11 +47,17 @@ const IndustryDetailPage: React.FC = () => {
 
   return (
     <ScrollView className={styles.detailPage} scrollY>
-      <Image
-        className={styles.projectImage}
-        src={project.image}
-        mode="aspectFill"
-      />
+      <View className={styles.imageWrap}>
+        <Image
+          className={styles.projectImage}
+          src={project.image}
+          mode="aspectFill"
+        />
+        <View className={styles.editBtn} onClick={handleEdit}>
+          <Text>✏️</Text>
+          <Text className={styles.editBtnText}>编辑</Text>
+        </View>
+      </View>
 
       <View className={styles.headerInfo}>
         <Text className={styles.projectTitle}>{project.name}</Text>

@@ -4,32 +4,40 @@ import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
 import Tag from '@/components/Tag';
 import EmptyState from '@/components/EmptyState';
-import { industryList, industryTypeList } from '@/data/industries';
+import { industryTypeList } from '@/data/industries';
+import { useAppStore } from '@/store';
 import { IndustryProject } from '@/types';
 
 const IndustryPage: React.FC = () => {
   const [activeType, setActiveType] = useState('全部');
   const [refreshing, setRefreshing] = useState(false);
+  const industries = useAppStore((s) => s.industries);
 
   const stats = useMemo(() => {
-    const totalSubsidy = industryList.reduce((sum, item) => sum + item.subsidyAmount, 0);
-    const activeCount = industryList.filter((item) => item.status === 'active').length;
+    const totalSubsidy = industries.reduce((sum, item) => sum + item.subsidyAmount, 0);
+    const activeCount = industries.filter((item) => item.status === 'active').length;
     return {
-      total: industryList.length,
+      total: industries.length,
       active: activeCount,
       subsidy: (totalSubsidy / 10000).toFixed(1)
     };
-  }, []);
+  }, [industries]);
 
   const filteredProjects = useMemo(() => {
-    return industryList.filter((project) => {
+    return industries.filter((project) => {
       return activeType === '全部' || project.type === activeType;
     });
-  }, [activeType]);
+  }, [industries, activeType]);
 
   const handleProjectClick = (project: IndustryProject) => {
     Taro.navigateTo({
       url: `/pages/industry-detail/index?id=${project.id}`
+    });
+  };
+
+  const handleAddIndustry = () => {
+    Taro.navigateTo({
+      url: '/pages/industry-edit/index'
     });
   };
 
@@ -160,6 +168,10 @@ const IndustryPage: React.FC = () => {
             <EmptyState text="暂无产业项目" />
           </View>
         )}
+      </View>
+
+      <View className={styles.addBtn} onClick={handleAddIndustry}>
+        <Text className={styles.addBtnText}>+</Text>
       </View>
     </ScrollView>
   );

@@ -7,10 +7,12 @@ export default defineAppConfig({
     'pages/public/index',
     'pages/farmer-detail/index',
     'pages/farmer-edit/index',
+    'pages/industry-edit/index',
     'pages/industry-detail/index',
     'pages/event-detail/index',
     'pages/event-create/index',
     'pages/public-detail/index',
+    'pages/public-edit/index',
     'pages/statistics/index'
   ],
   window: {

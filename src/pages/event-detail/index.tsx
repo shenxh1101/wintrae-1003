@@ -1,22 +1,23 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, Image, ScrollView } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import styles from './index.module.scss';
 import Tag from '@/components/Tag';
-import { eventList } from '@/data/events';
 import { EventItem } from '@/types';
+import { useAppStore } from '@/store';
+
+const ASSIGNEE_OPTIONS = ['李村主任', '张支书', '王文书'];
 
 const EventDetailPage: React.FC = () => {
   const router = useRouter();
-  const [event, setEvent] = useState<EventItem | null>(null);
+  const id = router.params.id as string;
+  const getEvent = useAppStore((s) => s.getEvent);
+  const dispatchEvent = useAppStore((s) => s.dispatchEvent);
+  const addEventProgress = useAppStore((s) => s.addEventProgress);
+  const completeEvent = useAppStore((s) => s.completeEvent);
+  const events = useAppStore((s) => s.events);
 
-  useEffect(() => {
-    const id = router.params.id;
-    const found = eventList.find((e) => e.id === id);
-    if (found) {
-      setEvent(found);
-    }
-  }, [router.params.id]);
+  const event = useMemo(() => getEvent(id), [id, events]);
 
   const getPriorityClass = (priority: string) => {
     const map: Record<string, string> = {
@@ -67,7 +68,44 @@ const EventDetailPage: React.FC = () => {
   };
 
   const handleDispatch = () => {
-    Taro.showToast({ title: '派单功能开发中', icon: 'none' });
+    Taro.showActionSheet({
+      itemList: ASSIGNEE_OPTIONS,
+      success: (res) => {
+        const assignee = ASSIGNEE_OPTIONS[res.tapIndex];
+        dispatchEvent(id, assignee);
+        Taro.showToast({ title: `已派单给${assignee}`, icon: 'success' });
+      },
+      fail: (err) => {
+        if (err.errMsg !== 'showActionSheet:fail cancel') {
+          console.error('[EventDetail] 派单失败', err);
+        }
+      }
+    });
+  };
+
+  const handleAddProgress = () => {
+    Taro.showModal({
+      title: '添加处理进度',
+      editable: true,
+      placeholderText: '请输入处理进度说明...',
+      success: (res) => {
+        if (res.confirm && res.content) {
+          const content = res.content.trim();
+          if (!content) {
+            Taro.showToast({ title: '请输入内容', icon: 'none' });
+            return;
+          }
+          const operator = event?.assignee || '村委会';
+          addEventProgress(id, { content, operator });
+          Taro.showToast({ title: '进度已添加', icon: 'success' });
+        }
+      }
+    });
+  };
+
+  const handleComplete = () => {
+    completeEvent(id);
+    Taro.showToast({ title: '事件已完成', icon: 'success' });
   };
 
   const handlePhotoPreview = (url: string) => {
@@ -88,7 +126,9 @@ const EventDetailPage: React.FC = () => {
   }
 
   const canDispatch = event.status === 'pending';
+  const canAddProgress = event.status === 'processing';
   const canComplete = event.status === 'processing';
+  const showActionButtons = canDispatch || canAddProgress || canComplete;
 
   return (
     <ScrollView className={styles.detailPage} scrollY>
@@ -205,26 +245,28 @@ const EventDetailPage: React.FC = () => {
         </View>
       </View>
 
-      <View className={styles.bottomBar}>
-        <View className={styles.secondaryBtn} onClick={handleCall}>
-          <Text className={styles.secondaryBtnText}>联系反映人</Text>
+      {showActionButtons && (
+        <View className={styles.bottomBar}>
+          <View className={styles.secondaryBtn} onClick={handleCall}>
+            <Text className={styles.secondaryBtnText}>联系反映人</Text>
+          </View>
+          {canDispatch && (
+            <View className={styles.primaryBtn} onClick={handleDispatch}>
+              <Text className={styles.primaryBtnText}>立即派单</Text>
+            </View>
+          )}
+          {canAddProgress && (
+            <View className={styles.secondaryBtn} onClick={handleAddProgress}>
+              <Text className={styles.secondaryBtnText}>添加进度</Text>
+            </View>
+          )}
+          {canComplete && (
+            <View className={styles.primaryBtn} onClick={handleComplete}>
+              <Text className={styles.primaryBtnText}>确认完成</Text>
+            </View>
+          )}
         </View>
-        {canDispatch && (
-          <View className={styles.primaryBtn} onClick={handleDispatch}>
-            <Text className={styles.primaryBtnText}>立即派单</Text>
-          </View>
-        )}
-        {canComplete && (
-          <View className={styles.primaryBtn} onClick={() => Taro.showToast({ title: '功能开发中', icon: 'none' })}>
-            <Text className={styles.primaryBtnText}>确认完成</Text>
-          </View>
-        )}
-        {!canDispatch && !canComplete && (
-          <View className={styles.primaryBtn} onClick={() => Taro.showToast({ title: '功能开发中', icon: 'none' })}>
-            <Text className={styles.primaryBtnText}>添加进度</Text>
-          </View>
-        )}
-      </View>
+      )}
     </ScrollView>
   );
 };

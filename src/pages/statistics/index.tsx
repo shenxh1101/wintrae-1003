@@ -2,9 +2,9 @@ import React, { useState, useMemo } from 'react';
 import { View, Text, Picker } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
-import { farmerList, groupList } from '@/data/farmers';
-import { eventList, eventTypeList, eventStatusList } from '@/data/events';
-import { industryList } from '@/data/industries';
+import { useAppStore } from '@/store';
+import { groupList } from '@/data/farmers';
+import { eventTypeList, eventStatusList } from '@/data/events';
 
 const StatisticsPage: React.FC = () => {
   const [selectedGroup, setSelectedGroup] = useState('全部');
@@ -13,18 +13,38 @@ const StatisticsPage: React.FC = () => {
   const [startDate, setStartDate] = useState('2024-01-01');
   const [endDate, setEndDate] = useState('2024-12-31');
 
+  const farmers = useAppStore((s) => s.farmers);
+  const events = useAppStore((s) => s.events);
+  const industries = useAppStore((s) => s.industries);
+
   const groupIndex = groupList.indexOf(selectedGroup);
   const typeIndex = eventTypeList.indexOf(selectedType);
   const statusIndex = eventStatusList.findIndex((s) => s.value === selectedStatus);
 
+  const isEventDateInRange = (dateStr: string): boolean => {
+    if (!dateStr) return false;
+    const eventDate = new Date(dateStr.replace(' ', 'T'));
+    const start = new Date(startDate + 'T00:00:00');
+    const end = new Date(endDate + 'T23:59:59');
+    return eventDate >= start && eventDate <= end;
+  };
+
+  const isProjectDateInRange = (dateStr: string): boolean => {
+    if (!dateStr) return false;
+    const eventDate = new Date(dateStr);
+    const start = new Date(startDate);
+    const end = new Date(endDate);
+    return eventDate >= start && eventDate <= end;
+  };
+
   const stats = useMemo(() => {
-    let filteredFarmers = [...farmerList];
-    let filteredEvents = [...eventList];
-    let filteredIndustries = [...industryList];
+    let filteredFarmers = [...farmers];
+    let filteredEvents = [...events];
+    let filteredIndustries = [...industries];
 
     if (selectedGroup !== '全部') {
       filteredFarmers = filteredFarmers.filter((f) => f.group === selectedGroup);
-      filteredEvents = filteredEvents.filter((e) => e.title.includes(selectedGroup));
+      filteredEvents = filteredEvents.filter((e) => e.title.includes(selectedGroup) || e.location.includes(selectedGroup));
     }
 
     if (selectedType !== '全部') {
@@ -34,6 +54,9 @@ const StatisticsPage: React.FC = () => {
     if (selectedStatus !== 'all') {
       filteredEvents = filteredEvents.filter((e) => e.status === selectedStatus);
     }
+
+    filteredEvents = filteredEvents.filter((e) => isEventDateInRange(e.createTime));
+    filteredIndustries = filteredIndustries.filter((p) => isProjectDateInRange(p.createTime));
 
     const totalFarmers = filteredFarmers.length;
     const totalPopulation = filteredFarmers.reduce(
@@ -63,7 +86,7 @@ const StatisticsPage: React.FC = () => {
     const groupStats = groupList
       .filter((g) => g !== '全部')
       .map((group) => {
-        const groupFarmers = farmerList.filter((f) => f.group === group);
+        const groupFarmers = farmers.filter((f) => f.group === group);
         return {
           name: group,
           farmers: groupFarmers.length,
@@ -78,26 +101,30 @@ const StatisticsPage: React.FC = () => {
     const typeStats = eventTypeList
       .filter((t) => t !== '全部')
       .map((type) => {
-        const count = eventList.filter((e) => e.type === type).length;
+        const count = filteredEvents.filter((e) => e.type === type).length;
         return {
           name: type,
           count,
-          percent: totalEvents > 0 ? ((count / eventList.length) * 100).toFixed(1) : '0'
+          percent:
+            totalEvents > 0
+              ? ((count / totalEvents) * 100).toFixed(1)
+              : '0'
         };
       })
-      .sort((a, b) => b.count - a.count);
+      .sort((a, b) => b.count - a.count)
+      .filter((t) => t.count > 0);
 
     const statusStats = eventStatusList
       .filter((s) => s.value !== 'all')
       .map((status) => {
-        const count = eventList.filter((e) => e.status === status.value).length;
+        const count = filteredEvents.filter((e) => e.status === status.value).length;
         return {
           name: status.label,
           value: status.value,
           count,
           percent:
-            eventList.length > 0
-              ? ((count / eventList.length) * 100).toFixed(1)
+            totalEvents > 0
+              ? ((count / totalEvents) * 100).toFixed(1)
               : '0'
         };
       });
@@ -119,7 +146,7 @@ const StatisticsPage: React.FC = () => {
       statusStats,
       maxFarmers
     };
-  }, [selectedGroup, selectedType, selectedStatus]);
+  }, [farmers, events, industries, selectedGroup, selectedType, selectedStatus, startDate, endDate]);
 
   const statusColors: Record<string, string> = {
     pending: '#FF7D00',
@@ -152,15 +179,15 @@ const StatisticsPage: React.FC = () => {
   };
 
   const goToFarmerList = () => {
-    Taro.switchTab({ url: '/pages/farmer/index' });
+    Taro.switchTab({ url: '/pages/farmer/index' }).catch(() => {});
   };
 
   const goToEventList = () => {
-    Taro.switchTab({ url: '/pages/event/index' });
+    Taro.switchTab({ url: '/pages/event/index' }).catch(() => {});
   };
 
   const goToIndustryList = () => {
-    Taro.switchTab({ url: '/pages/industry/index' });
+    Taro.switchTab({ url: '/pages/industry/index' }).catch(() => {});
   };
 
   return (
@@ -263,7 +290,9 @@ const StatisticsPage: React.FC = () => {
           <Text className={styles.overviewIcon}>🌾</Text>
           <Text className={styles.overviewValue}>{stats.totalFarmland}</Text>
           <Text className={styles.overviewLabel}>耕地面积（亩）</Text>
-          <Text className={styles.overviewTrend}>人均 {(Number(stats.totalFarmland) / Math.max(stats.totalPopulation, 1)).toFixed(2)} 亩</Text>
+          <Text className={styles.overviewTrend}>
+            人均 {(Number(stats.totalFarmland) / Math.max(stats.totalPopulation, 1)).toFixed(2)} 亩
+          </Text>
         </View>
 
         <View className={styles.overviewCard} onClick={goToEventList}>
@@ -318,21 +347,27 @@ const StatisticsPage: React.FC = () => {
           <Text className={styles.moreBtn} onClick={goToEventList}>查看详情 →</Text>
         </View>
         <View className={styles.pieList}>
-          {stats.typeStats.map((item, index) => (
-            <View key={index} className={styles.pieItem}>
-              <View className={styles.pieLeft}>
-                <View
-                  className={styles.pieDot}
-                  style={{ backgroundColor: typeColors[index % typeColors.length] }}
-                />
-                <Text className={styles.pieLabel}>{item.name}</Text>
+          {stats.typeStats.length > 0 ? (
+            stats.typeStats.map((item, index) => (
+              <View key={index} className={styles.pieItem}>
+                <View className={styles.pieLeft}>
+                  <View
+                    className={styles.pieDot}
+                    style={{ backgroundColor: typeColors[index % typeColors.length] }}
+                  />
+                  <Text className={styles.pieLabel}>{item.name}</Text>
+                </View>
+                <View className={styles.pieRight}>
+                  <Text className={styles.pieCount}>{item.count}件</Text>
+                  <Text className={styles.piePercent}>{item.percent}%</Text>
+                </View>
               </View>
-              <View className={styles.pieRight}>
-                <Text className={styles.pieCount}>{item.count}件</Text>
-                <Text className={styles.piePercent}>{item.percent}%</Text>
-              </View>
+            ))
+          ) : (
+            <View style={{ padding: '24rpx', textAlign: 'center' }}>
+              <Text style={{ fontSize: '24rpx', color: '#86909C' }}>当前筛选条件下无数据</Text>
             </View>
-          ))}
+          )}
         </View>
       </View>
 

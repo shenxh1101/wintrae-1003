@@ -1,21 +1,30 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
-import { useRouter } from '@tarojs/taro';
+import Taro, { useRouter } from '@tarojs/taro';
 import styles from './index.module.scss';
-import { publicationList } from '@/data/publications';
 import { Publication } from '@/types';
+import { useAppStore } from '@/store';
 
 const PublicDetailPage: React.FC = () => {
   const router = useRouter();
+  const store = useAppStore();
   const [publication, setPublication] = useState<Publication | null>(null);
 
   useEffect(() => {
     const id = router.params.id;
-    const found = publicationList.find((p) => p.id === id);
+    const found = store.getPublication(id);
     if (found) {
       setPublication(found);
     }
-  }, [router.params.id]);
+  }, [router.params.id, store]);
+
+  const handleEditClick = () => {
+    if (publication) {
+      Taro.navigateTo({
+        url: `/pages/public-edit/index?id=${publication.id}`
+      });
+    }
+  };
 
   const getCategoryInfo = (category: string) => {
     const categoryMap: Record<string, { text: string; icon: string }> = {
@@ -80,6 +89,12 @@ const PublicDetailPage: React.FC = () => {
             <Text className={styles.infoLabel}>阅读量</Text>
             <Text className={styles.infoValue}>{publication.views} 次</Text>
           </View>
+        </View>
+      </View>
+
+      <View className={styles.editBar}>
+        <View className={styles.editBtn} onClick={handleEditClick}>
+          <Text className={styles.editBtnText}>✏️ 编辑</Text>
         </View>
       </View>
     </ScrollView>

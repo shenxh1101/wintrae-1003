@@ -4,49 +4,50 @@ import Taro from '@tarojs/taro';
 import styles from './index.module.scss';
 import StatCard from '@/components/StatCard';
 import Tag from '@/components/Tag';
-import { farmerList } from '@/data/farmers';
-import { industryList } from '@/data/industries';
-import { eventList } from '@/data/events';
-import { publicationList } from '@/data/publications';
+import { useAppStore } from '@/store';
 
 const HomePage: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
+  const farmers = useAppStore((s) => s.farmers);
+  const industries = useAppStore((s) => s.industries);
+  const events = useAppStore((s) => s.events);
+  const publications = useAppStore((s) => s.publications);
 
   const stats = useMemo(() => {
-    const totalPopulation = farmerList.reduce(
+    const totalPopulation = farmers.reduce(
       (sum, farmer) => sum + farmer.familyMembers.length,
       0
     );
-    const totalFarmland = farmerList.reduce(
+    const totalFarmland = farmers.reduce(
       (sum, farmer) => sum + farmer.farmlandArea,
       0
     );
-    const pendingEvents = eventList.filter(
+    const pendingEvents = events.filter(
       (e) => e.status === 'pending' || e.status === 'processing'
     ).length;
 
     return {
-      totalFarmers: farmerList.length,
+      totalFarmers: farmers.length,
       totalPopulation,
       totalFarmland: totalFarmland.toFixed(1),
-      totalProjects: industryList.length,
+      totalProjects: industries.length,
       pendingEvents
     };
-  }, []);
+  }, [farmers, industries, events]);
 
   const latestPublications = useMemo(() => {
-    return publicationList.slice(0, 3);
-  }, []);
+    return publications.slice(0, 3);
+  }, [publications]);
 
   const quickMenus = [
-    { icon: '👨‍👩‍👧', text: '农户档案', color: 'green', path: '/pages/farmer/index' },
-    { icon: '🌾', text: '产业项目', color: 'orange', path: '/pages/industry/index' },
-    { icon: '📋', text: '事件办理', color: 'blue', path: '/pages/event/index' },
-    { icon: '📢', text: '公开公示', color: 'red', path: '/pages/public/index' },
-    { icon: '📊', text: '统计查询', color: 'purple', path: '/pages/statistics/index' },
-    { icon: '📝', text: '新增农户', color: 'green', path: '/pages/farmer-edit/index' },
-    { icon: '➕', text: '上报事件', color: 'blue', path: '/pages/event-create/index' },
-    { icon: '💡', text: '政策咨询', color: 'orange', path: '' }
+    { icon: '👨‍👩‍👧', text: '农户档案', color: 'green', path: '/pages/farmer/index', isTab: true },
+    { icon: '🌾', text: '产业项目', color: 'orange', path: '/pages/industry/index', isTab: true },
+    { icon: '📋', text: '事件办理', color: 'blue', path: '/pages/event/index', isTab: true },
+    { icon: '📢', text: '公开公示', color: 'red', path: '/pages/public/index', isTab: true },
+    { icon: '📊', text: '统计查询', color: 'purple', path: '/pages/statistics/index', isTab: false },
+    { icon: '📝', text: '新增农户', color: 'green', path: '/pages/farmer-edit/index', isTab: false },
+    { icon: '➕', text: '上报事件', color: 'blue', path: '/pages/event-create/index', isTab: false },
+    { icon: '💡', text: '政策咨询', color: 'orange', path: '', isTab: false }
   ];
 
   const getTodayDate = () => {
@@ -59,14 +60,12 @@ const HomePage: React.FC = () => {
     return `${year}年${month}月${day}日 ${weekDay}`;
   };
 
-  const handleQuickMenuClick = (path: string) => {
+  const handleQuickMenuClick = (path: string, isTab: boolean) => {
     if (path) {
-      if (path.startsWith('/pages/') && path.includes('/pages/') && path.split('/').length === 4) {
-        Taro.switchTab({ url: path }).catch(() => {
-          Taro.navigateTo({ url: path });
-        });
+      if (isTab) {
+        Taro.switchTab({ url: path }).catch(() => {});
       } else {
-        Taro.navigateTo({ url: path });
+        Taro.navigateTo({ url: path }).catch(() => {});
       }
     } else {
       Taro.showToast({ title: '功能开发中', icon: 'none' });
@@ -150,7 +149,7 @@ const HomePage: React.FC = () => {
             <View
               key={index}
               className={styles.quickItem}
-              onClick={() => handleQuickMenuClick(menu.path)}
+              onClick={() => handleQuickMenuClick(menu.path, menu.isTab)}
             >
               <View className={`${styles.quickIcon} ${styles['quickIcon' + menu.color.charAt(0).toUpperCase() + menu.color.slice(1)]}`}>
                 <Text>{menu.icon}</Text>
@@ -169,7 +168,7 @@ const HomePage: React.FC = () => {
           </View>
           <Text
             className={styles.sectionMore}
-            onClick={() => Taro.switchTab({ url: '/pages/public/index' })}
+            onClick={() => Taro.switchTab({ url: '/pages/public/index' }).catch(() => {})}
           >
             更多
           </Text>

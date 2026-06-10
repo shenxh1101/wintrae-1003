@@ -3,20 +3,22 @@ import { View, Text, Image, ScrollView } from '@tarojs/components';
 import Taro, { useRouter } from '@tarojs/taro';
 import styles from './index.module.scss';
 import Tag from '@/components/Tag';
-import { farmerList } from '@/data/farmers';
+import { useAppStore } from '@/store';
 import { Farmer } from '@/types';
 
 const FarmerDetailPage: React.FC = () => {
   const router = useRouter();
+  const getFarmer = useAppStore((s) => s.getFarmer);
+  const farmers = useAppStore((s) => s.farmers);
   const [farmer, setFarmer] = useState<Farmer | null>(null);
 
   useEffect(() => {
     const id = router.params.id;
-    const found = farmerList.find((f) => f.id === id);
+    const found = getFarmer(id);
     if (found) {
       setFarmer(found);
     }
-  }, [router.params.id]);
+  }, [router.params.id, getFarmer, farmers]);
 
   const handleCall = () => {
     if (farmer?.phone) {
