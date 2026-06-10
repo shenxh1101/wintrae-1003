@@ -1,0 +1,280 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background-color: $color-bg-page;
+  padding-bottom: 40px;
+}
+
+.filterSection {
+  background-color: $color-bg-card;
+  padding: 24px;
+  margin-bottom: 16px;
+}
+
+.filterRow {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.filterItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filterLabel {
+  font-size: 24px;
+  color: $color-text-tertiary;
+}
+
+.filterPicker {
+  height: 72px;
+  background-color: $color-bg-page;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  font-size: 26px;
+  color: $color-text-primary;
+}
+
+.pickerValue {
+  flex: 1;
+}
+
+.pickerArrow {
+  color: $color-text-tertiary;
+  font-size: 24px;
+}
+
+.statsOverview {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  padding: 0 24px 16px;
+}
+
+.overviewCard {
+  background-color: $color-bg-card;
+  border-radius: 16px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.overviewIcon {
+  font-size: 40px;
+  margin-bottom: 8px;
+}
+
+.overviewValue {
+  font-size: 44px;
+  font-weight: 700;
+  color: $color-text-primary;
+}
+
+.overviewLabel {
+  font-size: 24px;
+  color: $color-text-tertiary;
+}
+
+.overviewTrend {
+  font-size: 22px;
+  color: $color-success;
+  margin-top: 4px;
+}
+
+.statSection {
+  margin: 0 24px 24px;
+  background-color: $color-bg-card;
+  border-radius: 16px;
+  padding: 28px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.sectionTitle {
+  font-size: 30px;
+  font-weight: 600;
+  color: $color-text-primary;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.titleIcon {
+  font-size: 32px;
+}
+
+.moreBtn {
+  font-size: 24px;
+  color: $color-primary;
+}
+
+.barChart {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.barItem {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.barLabel {
+  width: 120px;
+  font-size: 24px;
+  color: $color-text-secondary;
+  flex-shrink: 0;
+}
+
+.barTrack {
+  flex: 1;
+  height: 24px;
+  background-color: $color-bg-page;
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  background: linear-gradient(90deg, $color-primary-light 0%, $color-primary 100%);
+  border-radius: 12px;
+  transition: width 0.3s ease;
+}
+
+.barValue {
+  width: 80px;
+  font-size: 24px;
+  color: $color-text-primary;
+  font-weight: 600;
+  text-align: right;
+  flex-shrink: 0;
+}
+
+.pieList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.pieItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-bottom: 1px solid $color-divider;
+
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.pieLeft {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.pieDot {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.pieLabel {
+  font-size: 26px;
+  color: $color-text-primary;
+}
+
+.pieRight {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pieCount {
+  font-size: 28px;
+  font-weight: 600;
+  color: $color-text-primary;
+}
+
+.piePercent {
+  font-size: 22px;
+  color: $color-text-tertiary;
+  width: 80px;
+  text-align: right;
+}
+
+.dateRange {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.datePicker {
+  flex: 1;
+  height: 72px;
+  background-color: $color-bg-page;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  color: $color-text-primary;
+}
+
+.dateDivider {
+  font-size: 26px;
+  color: $color-text-tertiary;
+}
+
+.actionBar {
+  display: flex;
+  gap: 16px;
+  margin-top: 20px;
+}
+
+.resetBtn {
+  flex: 1;
+  height: 72px;
+  border-radius: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  background-color: $color-bg-page;
+  color: $color-text-secondary;
+}
+
+.submitBtn {
+  flex: 2;
+  height: 72px;
+  border-radius: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  color: $color-text-white;
+  font-weight: 500;
+}

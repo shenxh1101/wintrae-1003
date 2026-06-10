@@ -1,0 +1,238 @@
+@use '@/styles/variables.scss' as *;
+
+.homePage {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: $spacing-xl;
+}
+
+.header {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  padding: $spacing-xl $page-padding $spacing-xl * 2;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -100rpx;
+    right: -100rpx;
+    width: 400rpx;
+    height: 400rpx;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: $radius-round;
+  }
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -80rpx;
+    left: -80rpx;
+    width: 300rpx;
+    height: 300rpx;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: $radius-round;
+  }
+}
+
+.villageName {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  margin-bottom: $spacing-xs;
+  position: relative;
+  z-index: 1;
+}
+
+.welcomeText {
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.85);
+  position: relative;
+  z-index: 1;
+}
+
+.dateText {
+  font-size: $font-size-xs;
+  color: rgba(255, 255, 255, 0.7);
+  margin-top: $spacing-sm;
+  position: relative;
+  z-index: 1;
+}
+
+.statsSection {
+  margin: -$spacing-xl * 1.5 $page-padding 0;
+  position: relative;
+  z-index: 2;
+}
+
+.statsRow {
+  display: flex;
+  gap: $spacing-md;
+  margin-bottom: $spacing-md;
+}
+
+.statsRow:last-child {
+  margin-bottom: 0;
+}
+
+.quickSection {
+  margin: $spacing-xl $page-padding 0;
+}
+
+.quickGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-md;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg $spacing-sm;
+  box-shadow: $shadow-card;
+}
+
+.quickItem {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: $spacing-sm 0;
+  transition: all $transition-fast;
+  
+  &:active {
+    opacity: 0.8;
+    transform: scale(0.95);
+  }
+}
+
+.quickIcon {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: $radius-lg;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: $spacing-sm;
+  font-size: 44rpx;
+}
+
+.quickIconGreen {
+  background: rgba($color-primary, 0.1);
+}
+
+.quickIconBlue {
+  background: rgba($color-info, 0.1);
+}
+
+.quickIconOrange {
+  background: rgba($color-warning, 0.1);
+}
+
+.quickIconRed {
+  background: rgba($color-error, 0.1);
+}
+
+.quickIconPurple {
+  background: rgba(#722ed1, 0.1);
+}
+
+.quickText {
+  font-size: $font-size-xs;
+  color: $color-text-secondary;
+}
+
+.noticeSection {
+  margin: $spacing-xl $page-padding 0;
+}
+
+.noticeCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  box-shadow: $shadow-card;
+  overflow: hidden;
+}
+
+.noticeItem {
+  padding: $spacing-lg;
+  border-bottom: 1rpx solid $color-divider;
+  display: flex;
+  align-items: flex-start;
+  transition: background $transition-fast;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+  
+  &:active {
+    background: $color-bg-hover;
+  }
+}
+
+.noticeTag {
+  flex-shrink: 0;
+  margin-right: $spacing-md;
+  margin-top: 4rpx;
+}
+
+.noticeContent {
+  flex: 1;
+  min-width: 0;
+}
+
+.noticeTitle {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  @include text-ellipsis;
+  margin-bottom: $spacing-xs;
+}
+
+.noticeMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.noticePublisher {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.noticeDate {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-md;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  display: flex;
+  align-items: center;
+}
+
+.sectionTitleDot {
+  width: 8rpx;
+  height: 32rpx;
+  background: $color-primary;
+  border-radius: $radius-xs;
+  margin-right: $spacing-sm;
+}
+
+.sectionMore {
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+  display: flex;
+  align-items: center;
+  
+  &::after {
+    content: '›';
+    margin-left: 4rpx;
+    font-size: $font-size-lg;
+    line-height: 1;
+  }
+}

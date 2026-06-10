@@ -1,0 +1,251 @@
+@use '@/styles/variables.scss' as *;
+
+.createPage {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 140rpx;
+}
+
+.formSection {
+  margin: $spacing-md $page-padding 0;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  box-shadow: $shadow-card;
+}
+
+.sectionTitle {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  padding: $spacing-lg $spacing-lg $spacing-sm;
+  display: flex;
+  align-items: center;
+}
+
+.titleIcon {
+  margin-right: $spacing-sm;
+  font-size: $font-size-md;
+}
+
+.formItem {
+  display: flex;
+  align-items: flex-start;
+  padding: $spacing-md $spacing-lg;
+  border-bottom: 1rpx solid $color-divider;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.formLabel {
+  flex-shrink: 0;
+  width: 140rpx;
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  padding-top: 4rpx;
+}
+
+.formInput {
+  flex: 1;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+}
+
+.formTextarea {
+  flex: 1;
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  min-height: 160rpx;
+  line-height: $line-height-normal;
+}
+
+.placeholderText {
+  color: $color-text-tertiary;
+}
+
+.prioritySelector {
+  flex: 1;
+  display: flex;
+  gap: $spacing-sm;
+  flex-wrap: wrap;
+}
+
+.priorityOption {
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  background: $color-bg-hover;
+  color: $color-text-secondary;
+  border: 2rpx solid transparent;
+  transition: all $transition-fast;
+}
+
+.priorityHighSelected {
+  background: rgba($color-error, 0.1);
+  color: $color-error;
+  border-color: $color-error;
+}
+
+.priorityMediumSelected {
+  background: rgba($color-warning, 0.1);
+  color: $color-warning;
+  border-color: $color-warning;
+}
+
+.priorityLowSelected {
+  background: rgba($color-success, 0.1);
+  color: $color-success;
+  border-color: $color-success;
+}
+
+.typeSelector {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+}
+
+.typeOption {
+  padding: $spacing-xs $spacing-md;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  background: $color-bg-hover;
+  color: $color-text-secondary;
+  border: 2rpx solid transparent;
+  transition: all $transition-fast;
+}
+
+.typeSelected {
+  background: $color-tag-help-bg;
+  color: $color-tag-help-text;
+  border-color: $color-primary;
+}
+
+.photoSection {
+  padding: $spacing-md $spacing-lg;
+}
+
+.photoGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: $spacing-sm;
+}
+
+.photoItem {
+  width: 100%;
+  height: 140rpx;
+  border-radius: $radius-md;
+  overflow: hidden;
+  background: $color-bg-hover;
+  position: relative;
+}
+
+.photoImg {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.photoDelete {
+  position: absolute;
+  top: 4rpx;
+  right: 4rpx;
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: $radius-round;
+  background: rgba(0, 0, 0, 0.5);
+  color: white;
+  font-size: 24rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+}
+
+.addPhoto {
+  width: 100%;
+  height: 140rpx;
+  border-radius: $radius-md;
+  border: 2rpx dashed $color-border;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: $color-text-tertiary;
+  
+  &:active {
+    background: $color-bg-hover;
+  }
+}
+
+.addPhotoIcon {
+  font-size: $font-size-xl;
+  line-height: 1;
+  margin-bottom: 4rpx;
+}
+
+.addPhotoText {
+  font-size: $font-size-xs;
+}
+
+.locationItem {
+  display: flex;
+  align-items: center;
+  flex: 1;
+}
+
+.locationBtn {
+  display: flex;
+  align-items: center;
+  padding: $spacing-xs $spacing-sm;
+  background: $color-tag-info-bg;
+  color: $color-tag-info-text;
+  border-radius: $radius-sm;
+  font-size: $font-size-sm;
+  margin-right: $spacing-sm;
+  
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.locationText {
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+  flex: 1;
+  @include text-ellipsis;
+}
+
+.submitBar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: $spacing-md $page-padding;
+  padding-bottom: calc($spacing-md + env(safe-area-inset-bottom));
+  background: $color-bg-card;
+  box-shadow: 0 -4rpx 16rpx rgba(0, 0, 0, 0.06);
+  z-index: 100;
+}
+
+.submitBtn {
+  height: $button-height-lg;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  
+  &:active {
+    opacity: 0.9;
+    transform: scale(0.98);
+  }
+}
+
+.submitBtnText {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text-white;
+}

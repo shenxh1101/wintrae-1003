@@ -1,0 +1,75 @@
+@use '@/styles/variables.scss' as *;
+
+.tag {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: $radius-sm;
+  padding: 0 $spacing-sm;
+  white-space: nowrap;
+}
+
+.tagText {
+  font-size: $font-size-xs;
+}
+
+.small {
+  height: 40rpx;
+  line-height: 40rpx;
+  
+  .tagText {
+    font-size: $font-size-xs;
+  }
+}
+
+.medium {
+  height: 56rpx;
+  line-height: 56rpx;
+  padding: 0 $spacing-md;
+  
+  .tagText {
+    font-size: $font-size-sm;
+  }
+}
+
+.primary {
+  background: $color-tag-help-bg;
+  .tagText {
+    color: $color-tag-help-text;
+  }
+}
+
+.success {
+  background: rgba($color-success, 0.1);
+  .tagText {
+    color: $color-success;
+  }
+}
+
+.warning {
+  background: $color-tag-warning-bg;
+  .tagText {
+    color: $color-tag-warning-text;
+  }
+}
+
+.error {
+  background: rgba($color-error, 0.1);
+  .tagText {
+    color: $color-error;
+  }
+}
+
+.info {
+  background: $color-tag-info-bg;
+  .tagText {
+    color: $color-tag-info-text;
+  }
+}
+
+.default {
+  background: $color-bg-hover;
+  .tagText {
+    color: $color-text-secondary;
+  }
+}

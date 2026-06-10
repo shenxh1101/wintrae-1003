@@ -1,0 +1,177 @@
+@use '@/styles/variables.scss' as *;
+
+.industryPage {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: $spacing-xl;
+}
+
+.statsBar {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  padding: $spacing-xl $page-padding;
+  display: flex;
+  gap: $spacing-md;
+}
+
+.statItem {
+  flex: 1;
+  text-align: center;
+}
+
+.statValue {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  margin-bottom: $spacing-xs;
+  line-height: 1;
+}
+
+.statLabel {
+  font-size: $font-size-xs;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.statDivider {
+  width: 1rpx;
+  height: 60rpx;
+  background: rgba(255, 255, 255, 0.3);
+  align-self: center;
+}
+
+.filterSection {
+  padding: $spacing-md $page-padding;
+  background: $color-bg-page;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.filterScroll {
+  white-space: nowrap;
+}
+
+.filterItem {
+  display: inline-block;
+  padding: $spacing-sm $spacing-lg;
+  margin-right: $spacing-sm;
+  border-radius: $radius-button;
+  font-size: $font-size-sm;
+  background: $color-bg-card;
+  color: $color-text-secondary;
+  transition: all $transition-fast;
+  
+  &:last-child {
+    margin-right: 0;
+  }
+}
+
+.filterActive {
+  background: $color-primary;
+  color: $color-text-white;
+}
+
+.listSection {
+  padding: 0 $page-padding;
+}
+
+.projectCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  overflow: hidden;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+  transition: all $transition-fast;
+  
+  &:active {
+    transform: scale(0.99);
+    box-shadow: $shadow-card-hover;
+  }
+}
+
+.projectImage {
+  width: 100%;
+  height: 280rpx;
+  display: block;
+  background: $color-bg-hover;
+}
+
+.projectContent {
+  padding: $spacing-lg;
+}
+
+.projectHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+}
+
+.projectName {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  flex: 1;
+  @include text-ellipsis;
+}
+
+.statusTag {
+  flex-shrink: 0;
+  margin-left: $spacing-sm;
+}
+
+.projectMeta {
+  display: flex;
+  gap: $spacing-lg;
+  margin-bottom: $spacing-md;
+  flex-wrap: wrap;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+}
+
+.metaIcon {
+  margin-right: 6rpx;
+  font-size: $font-size-sm;
+}
+
+.projectStats {
+  display: flex;
+  gap: $spacing-md;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+}
+
+.statBlock {
+  flex: 1;
+  text-align: center;
+}
+
+.statNum {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-primary;
+  margin-bottom: 4rpx;
+}
+
+.statName {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.typeTag {
+  display: inline-block;
+  padding: 4rpx $spacing-sm;
+  border-radius: $radius-xs;
+  font-size: $font-size-xs;
+  background: $color-tag-info-bg;
+  color: $color-tag-info-text;
+  margin-right: $spacing-sm;
+}
+
+.emptyWrap {
+  margin-top: $spacing-xl * 2;
+}

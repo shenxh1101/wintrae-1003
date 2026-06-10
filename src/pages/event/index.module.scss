@@ -1,0 +1,225 @@
+@use '@/styles/variables.scss' as *;
+
+.eventPage {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 120rpx;
+}
+
+.tabsBar {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: $color-bg-card;
+  padding: $spacing-sm $page-padding;
+  box-shadow: $shadow-card;
+}
+
+.tabsScroll {
+  white-space: nowrap;
+}
+
+.tabItem {
+  display: inline-block;
+  position: relative;
+  padding: $spacing-sm $spacing-lg;
+  margin-right: $spacing-sm;
+  font-size: $font-size-md;
+  color: $color-text-secondary;
+  transition: all $transition-fast;
+  
+  &:last-child {
+    margin-right: 0;
+  }
+}
+
+.tabActive {
+  color: $color-primary;
+  font-weight: $font-weight-semibold;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 48rpx;
+    height: 6rpx;
+    background: $color-primary;
+    border-radius: 3rpx;
+  }
+}
+
+.tabBadge {
+  position: absolute;
+  top: 4rpx;
+  right: 8rpx;
+  min-width: 32rpx;
+  height: 32rpx;
+  line-height: 32rpx;
+  padding: 0 8rpx;
+  background: $color-error;
+  color: $color-text-white;
+  font-size: 20rpx;
+  border-radius: $radius-round;
+  text-align: center;
+}
+
+.listSection {
+  padding: $spacing-md $page-padding;
+}
+
+.eventCard {
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  margin-bottom: $spacing-md;
+  box-shadow: $shadow-card;
+  transition: all $transition-fast;
+  
+  &:active {
+    transform: scale(0.99);
+    box-shadow: $shadow-card-hover;
+  }
+}
+
+.cardHeader {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: $spacing-sm;
+}
+
+.eventTitle {
+  flex: 1;
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  @include text-ellipsis;
+  margin-right: $spacing-sm;
+}
+
+.priorityBadge {
+  flex-shrink: 0;
+  padding: 4rpx $spacing-sm;
+  border-radius: $radius-xs;
+  font-size: $font-size-xs;
+  font-weight: $font-weight-medium;
+}
+
+.priorityHigh {
+  background: rgba($color-error, 0.1);
+  color: $color-error;
+}
+
+.priorityMedium {
+  background: rgba($color-warning, 0.1);
+  color: $color-warning;
+}
+
+.priorityLow {
+  background: rgba($color-success, 0.1);
+  color: $color-success;
+}
+
+.cardBody {
+  margin-bottom: $spacing-md;
+}
+
+.eventDesc {
+  font-size: $font-size-sm;
+  color: $color-text-secondary;
+  line-height: $line-height-normal;
+  @include text-ellipsis-multi(2);
+  margin-bottom: $spacing-md;
+}
+
+.eventTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  margin-bottom: $spacing-md;
+}
+
+.eventMeta {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-top: $spacing-md;
+  border-top: 1rpx solid $color-divider;
+}
+
+.metaLeft {
+  display: flex;
+  align-items: center;
+  gap: $spacing-md;
+}
+
+.metaItem {
+  display: flex;
+  align-items: center;
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.metaIcon {
+  margin-right: 6rpx;
+  font-size: $font-size-xs;
+}
+
+.statusBadge {
+  padding: 4rpx $spacing-sm;
+  border-radius: $radius-xs;
+  font-size: $font-size-xs;
+}
+
+.statusPending {
+  background: rgba($color-warning, 0.1);
+  color: $color-warning;
+}
+
+.statusProcessing {
+  background: rgba($color-primary, 0.1);
+  color: $color-primary;
+}
+
+.statusCompleted {
+  background: rgba($color-success, 0.1);
+  color: $color-success;
+}
+
+.statusClosed {
+  background: $color-bg-hover;
+  color: $color-text-tertiary;
+}
+
+.addBtn {
+  position: fixed;
+  right: $page-padding;
+  bottom: 120rpx;
+  width: 112rpx;
+  height: 112rpx;
+  border-radius: $radius-round;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba($color-primary, 0.4);
+  z-index: 100;
+  transition: all $transition-fast;
+  
+  &:active {
+    transform: scale(0.9);
+  }
+}
+
+.addBtnText {
+  font-size: 56rpx;
+  color: $color-text-white;
+  line-height: 1;
+  font-weight: 300;
+}
+
+.emptyWrap {
+  margin-top: $spacing-xl * 2;
+}

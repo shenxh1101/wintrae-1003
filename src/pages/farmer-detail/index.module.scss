@@ -1,0 +1,208 @@
+@use '@/styles/variables.scss' as *;
+
+.detailPage {
+  min-height: 100vh;
+  background: $color-bg-page;
+  padding-bottom: 120rpx;
+}
+
+.headerCard {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  padding: $spacing-xl $page-padding;
+  position: relative;
+  overflow: hidden;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: -60rpx;
+    right: -60rpx;
+    width: 240rpx;
+    height: 240rpx;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: $radius-round;
+  }
+}
+
+.headerContent {
+  display: flex;
+  align-items: center;
+  position: relative;
+  z-index: 1;
+}
+
+.avatar {
+  width: 140rpx;
+  height: 140rpx;
+  border-radius: $radius-round;
+  margin-right: $spacing-lg;
+  border: 4rpx solid rgba(255, 255, 255, 0.5);
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.farmerInfo {
+  flex: 1;
+  min-width: 0;
+}
+
+.farmerName {
+  font-size: $font-size-xxl;
+  font-weight: $font-weight-bold;
+  color: $color-text-white;
+  margin-bottom: $spacing-xs;
+}
+
+.farmerMeta {
+  font-size: $font-size-sm;
+  color: rgba(255, 255, 255, 0.85);
+  margin-bottom: $spacing-xs;
+}
+
+.tagsWrap {
+  display: flex;
+  flex-wrap: wrap;
+  gap: $spacing-sm;
+  margin-top: $spacing-sm;
+}
+
+.section {
+  margin: $spacing-md $page-padding 0;
+  background: $color-bg-card;
+  border-radius: $radius-lg;
+  padding: $spacing-lg;
+  box-shadow: $shadow-card;
+}
+
+.sectionTitle {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+  margin-bottom: $spacing-md;
+  display: flex;
+  align-items: center;
+}
+
+.titleIcon {
+  margin-right: $spacing-sm;
+  font-size: $font-size-lg;
+}
+
+.infoList {
+  padding: 0;
+}
+
+.infoItem {
+  display: flex;
+  align-items: flex-start;
+  padding: $spacing-sm 0;
+  border-bottom: 1rpx solid $color-divider;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.infoLabel {
+  flex-shrink: 0;
+  width: 160rpx;
+  font-size: $font-size-sm;
+  color: $color-text-tertiary;
+}
+
+.infoValue {
+  flex: 1;
+  font-size: $font-size-sm;
+  color: $color-text-primary;
+}
+
+.familyList {
+  padding: 0;
+}
+
+.familyItem {
+  display: flex;
+  align-items: center;
+  padding: $spacing-md 0;
+  border-bottom: 1rpx solid $color-divider;
+  
+  &:last-child {
+    border-bottom: none;
+  }
+}
+
+.familyAvatar {
+  width: 72rpx;
+  height: 72rpx;
+  border-radius: $radius-round;
+  margin-right: $spacing-md;
+  background: $color-bg-hover;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 32rpx;
+}
+
+.familyInfo {
+  flex: 1;
+}
+
+.familyName {
+  font-size: $font-size-md;
+  color: $color-text-primary;
+  margin-bottom: 4rpx;
+}
+
+.familyDesc {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.contactBtn {
+  position: fixed;
+  left: $page-padding;
+  right: $page-padding;
+  bottom: 40rpx;
+  height: $button-height-lg;
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 8rpx 24rpx rgba($color-primary, 0.3);
+  z-index: 100;
+  transition: all $transition-fast;
+  
+  &:active {
+    transform: scale(0.98);
+    opacity: 0.9;
+  }
+}
+
+.contactBtnText {
+  font-size: $font-size-md;
+  font-weight: $font-weight-medium;
+  color: $color-text-white;
+  margin-left: $spacing-sm;
+}
+
+.editBtn {
+  position: absolute;
+  top: $spacing-lg;
+  right: $page-padding;
+  padding: $spacing-sm $spacing-md;
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: $radius-button;
+  display: flex;
+  align-items: center;
+  z-index: 2;
+  
+  &:active {
+    background: rgba(255, 255, 255, 0.3);
+  }
+}
+
+.editBtnText {
+  font-size: $font-size-sm;
+  color: $color-text-white;
+  margin-left: 4rpx;
+}

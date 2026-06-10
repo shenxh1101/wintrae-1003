@@ -1,0 +1,109 @@
+@use '@/styles/variables.scss' as *;
+
+.detailPage {
+  min-height: 100vh;
+  background-color: $color-bg-page;
+  padding-bottom: 40px;
+}
+
+.headerSection {
+  background: linear-gradient(135deg, $color-primary 0%, $color-primary-light 100%);
+  padding: 40px 32px;
+  color: $color-text-white;
+}
+
+.categoryTag {
+  display: inline-block;
+  padding: 8px 20px;
+  background-color: rgba(255, 255, 255, 0.2);
+  border-radius: 24px;
+  font-size: 24px;
+  margin-bottom: 20px;
+}
+
+.titleText {
+  font-size: 36px;
+  font-weight: 600;
+  line-height: 1.5;
+  margin-bottom: 20px;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 24px;
+  opacity: 0.9;
+}
+
+.metaLeft {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.metaRight {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.contentCard {
+  margin: 24px 24px 0;
+  background-color: $color-bg-card;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.sectionTitle {
+  font-size: 30px;
+  font-weight: 600;
+  color: $color-text-primary;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.titleIcon {
+  font-size: 32px;
+}
+
+.contentText {
+  font-size: 28px;
+  color: $color-text-secondary;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+.infoCard {
+  margin: 24px;
+  background-color: $color-bg-card;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+}
+
+.infoList {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.infoItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.infoLabel {
+  font-size: 26px;
+  color: $color-text-tertiary;
+}
+
+.infoValue {
+  font-size: 26px;
+  color: $color-text-primary;
+}
