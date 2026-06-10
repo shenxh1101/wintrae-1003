@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
-import Taro, { useRouter } from '@tarojs/taro';
+import Taro, { useRouter, useDidShow } from '@tarojs/taro';
 import styles from './index.module.scss';
 import { Publication } from '@/types';
 import { useAppStore } from '@/store';
@@ -10,12 +10,20 @@ const PublicDetailPage: React.FC = () => {
   const store = useAppStore();
   const [publication, setPublication] = useState<Publication | null>(null);
 
-  useEffect(() => {
+  const loadPublication = () => {
     const id = router.params.id;
     const found = store.getPublication(id);
     if (found) {
       setPublication(found);
     }
+  };
+
+  useDidShow(() => {
+    loadPublication();
+  });
+
+  useEffect(() => {
+    loadPublication();
   }, [router.params.id, store]);
 
   const handleEditClick = () => {
@@ -30,14 +38,15 @@ const PublicDetailPage: React.FC = () => {
     if (!publication) return;
     Taro.showModal({
       title: '确认撤回',
-      content: '撤回后该公示将变为草稿状态，是否继续？',
+      content: '撤回后该公示将从群众端移除，变为已撤回状态，是否继续？',
       success: (res) => {
         if (res.confirm) {
           store.withdrawPublication(publication.id);
+          const updated = store.getPublication(publication.id);
+          if (updated) {
+            setPublication(updated);
+          }
           Taro.showToast({ title: '已撤回', icon: 'success' });
-          setTimeout(() => {
-            Taro.navigateBack();
-          }, 1000);
         }
       }
     });
@@ -47,7 +56,7 @@ const PublicDetailPage: React.FC = () => {
     if (!publication) return;
     Taro.showModal({
       title: '确认发布',
-      content: '发布后该公示将对外公开，是否继续？',
+      content: '发布后该公示将对外公开，发布时间会更新为今天，是否继续？',
       success: (res) => {
         if (res.confirm) {
           store.publishPublication(publication.id);
@@ -72,11 +81,29 @@ const PublicDetailPage: React.FC = () => {
   };
 
   const getStatusBadgeClass = (status: string) => {
-    return status === 'published' ? styles.statusPublished : styles.statusDraft;
+    switch (status) {
+      case 'published':
+        return styles.statusPublished;
+      case 'draft':
+        return styles.statusDraft;
+      case 'withdrawn':
+        return styles.statusWithdrawn;
+      default:
+        return styles.statusDraft;
+    }
   };
 
   const getStatusText = (status: string) => {
-    return status === 'published' ? '已发布' : '草稿';
+    switch (status) {
+      case 'published':
+        return '已发布';
+      case 'draft':
+        return '草稿';
+      case 'withdrawn':
+        return '已撤回';
+      default:
+        return '草稿';
+    }
   };
 
   const getPublishTimeText = (pub: Publication) => {
@@ -96,6 +123,7 @@ const PublicDetailPage: React.FC = () => {
 
   const categoryInfo = getCategoryInfo(publication.category);
   const isPublished = publication.status === 'published';
+  const isWithdrawn = publication.status === 'withdrawn';
 
   return (
     <ScrollView className={styles.detailPage} scrollY>
@@ -156,16 +184,23 @@ const PublicDetailPage: React.FC = () => {
 
       <View className={styles.editBar}>
         {isPublished ? (
-          <View className={styles.dangerBtn} onClick={handleWithdrawClick}>
-            <Text className={styles.dangerBtnText}>↩️ 撤回</Text>
-          </View>
+          <>
+            <View className={styles.secondaryBtn} onClick={handleEditClick}>
+              <Text className={styles.secondaryBtnText}>✏️ 编辑内容</Text>
+            </View>
+            <View className={styles.dangerBtn} onClick={handleWithdrawClick}>
+              <Text className={styles.dangerBtnText}>↩️ 撤回</Text>
+            </View>
+          </>
         ) : (
           <>
             <View className={styles.secondaryBtn} onClick={handleEditClick}>
               <Text className={styles.secondaryBtnText}>✏️ 编辑</Text>
             </View>
             <View className={styles.primaryBtn} onClick={handlePublishClick}>
-              <Text className={styles.primaryBtnText}>🚀 发布</Text>
+              <Text className={styles.primaryBtnText}>
+                {isWithdrawn ? '🚀 重新发布' : '🚀 发布'}
+              </Text>
             </View>
           </>
         )}

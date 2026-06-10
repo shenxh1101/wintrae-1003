@@ -1,0 +1,287 @@
+@use '@/styles/variables.scss' as *;
+
+.page {
+  min-height: 100vh;
+  background-color: $color-bg-page;
+  padding-bottom: 40px;
+}
+
+.statsSection {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  padding: 24px;
+  background-color: $color-bg-card;
+}
+
+.statCard {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 20px 0;
+  background-color: $color-bg-page;
+  border-radius: 12px;
+}
+
+.statValue {
+  font-size: 36px;
+  font-weight: 700;
+  color: $color-primary;
+}
+
+.statLabel {
+  font-size: 22px;
+  color: $color-text-tertiary;
+}
+
+.filterSection {
+  background-color: $color-bg-card;
+  padding: 24px;
+  margin-top: 16px;
+}
+
+.filterRow {
+  display: flex;
+  gap: 16px;
+  margin-bottom: 16px;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.filterItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.filterLabel {
+  font-size: 24px;
+  color: $color-text-tertiary;
+}
+
+.filterPicker {
+  height: 72px;
+  background-color: $color-bg-page;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  font-size: 26px;
+  color: $color-text-primary;
+}
+
+.pickerValue {
+  flex: 1;
+}
+
+.pickerArrow {
+  color: $color-text-tertiary;
+  font-size: 24px;
+}
+
+.dateRange {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.datePicker {
+  flex: 1;
+  height: 72px;
+  background-color: $color-bg-page;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 26px;
+  color: $color-text-primary;
+}
+
+.dateDivider {
+  font-size: 26px;
+  color: $color-text-tertiary;
+}
+
+.clearRow {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 16px;
+}
+
+.clearBtn {
+  padding: 8px 24px;
+  font-size: 24px;
+  color: $color-primary;
+}
+
+.tabsBar {
+  display: flex;
+  padding: 0 24px;
+  background-color: $color-bg-card;
+  margin-top: 16px;
+  border-bottom: 1px solid $color-divider;
+}
+
+.tabItem {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 20px 0;
+  font-size: 28px;
+  color: $color-text-secondary;
+  position: relative;
+
+  &:active {
+    opacity: 0.8;
+  }
+}
+
+.tabActive {
+  color: $color-primary;
+  font-weight: 600;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 48px;
+    height: 4px;
+    background-color: $color-primary;
+    border-radius: 2px;
+  }
+}
+
+.tabCount {
+  font-size: 22px;
+  margin-top: 4px;
+  color: $color-text-tertiary;
+}
+
+.listSection {
+  padding: 24px;
+}
+
+.eventCard {
+  background-color: $color-bg-card;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+
+  &:active {
+    transform: scale(0.99);
+  }
+}
+
+.cardHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16px;
+  gap: 16px;
+}
+
+.eventTitle {
+  flex: 1;
+  font-size: 30px;
+  font-weight: 600;
+  color: $color-text-primary;
+  line-height: 1.4;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.satisfactionBadge {
+  flex-shrink: 0;
+  padding: 6px 16px;
+  border-radius: 8px;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.pendingBadge {
+  flex-shrink: 0;
+  padding: 6px 16px;
+  border-radius: 8px;
+  background-color: rgba($color-warning, 0.1);
+  color: $color-warning;
+  font-size: 24px;
+  font-weight: 500;
+}
+
+.cardBody {
+  margin-bottom: 16px;
+}
+
+.eventTags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-bottom: 12px;
+}
+
+.eventDesc {
+  font-size: 26px;
+  color: $color-text-secondary;
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+  overflow: hidden;
+}
+
+.followupInfo {
+  background-color: $color-bg-page;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+
+.followupRow {
+  display: flex;
+  margin-bottom: 10px;
+  font-size: 24px;
+  line-height: 1.5;
+
+  &:last-child {
+    margin-bottom: 0;
+  }
+}
+
+.followupLabel {
+  flex-shrink: 0;
+  color: $color-text-tertiary;
+  width: 120px;
+}
+
+.followupValue {
+  flex: 1;
+  color: $color-text-primary;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  padding-top: 16px;
+  border-top: 1px solid $color-divider;
+}
+
+.footerText {
+  font-size: 22px;
+  color: $color-text-tertiary;
+}
+
+.emptyWrap {
+  margin-top: 80px;
+}

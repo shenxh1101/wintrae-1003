@@ -1,6 +1,6 @@
 import React, { useState, useMemo } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
-import Taro from '@tarojs/taro';
+import Taro, { useDidShow } from '@tarojs/taro';
 import styles from './index.module.scss';
 import Tag from '@/components/Tag';
 import EmptyState from '@/components/EmptyState';
@@ -8,35 +8,67 @@ import { publicationCategoryList } from '@/data/publications';
 import { Publication } from '@/types';
 import { useAppStore } from '@/store';
 
-const STATUS_TABS = [
+type RoleMode = 'cadre' | 'public';
+
+const CADRE_STATUS_TABS = [
   { label: '全部', value: 'all' },
   { label: '已发布', value: 'published' },
-  { label: '草稿', value: 'draft' }
+  { label: '草稿箱', value: 'draft' },
+  { label: '已撤回', value: 'withdrawn' }
+];
+
+const PUBLIC_STATUS_TABS = [
+  { label: '全部', value: 'all' },
+  { label: '已发布', value: 'published' }
 ];
 
 const PublicPage: React.FC = () => {
+  const [roleMode, setRoleMode] = useState<RoleMode>('cadre');
   const [activeCategory, setActiveCategory] = useState('all');
   const [activeStatus, setActiveStatus] = useState('all');
   const [refreshing, setRefreshing] = useState(false);
   const publications = useAppStore((s) => s.publications);
 
+  useDidShow(() => {
+    const mode = Taro.getStorageSync('public_role_mode');
+    if (mode) {
+      setRoleMode(mode);
+    }
+  });
+
+  const statusTabs = roleMode === 'cadre' ? CADRE_STATUS_TABS : PUBLIC_STATUS_TABS;
+
   const filteredPublications = useMemo(() => {
     return publications.filter((pub) => {
       const categoryMatch = activeCategory === 'all' || pub.category === activeCategory;
-      const statusMatch = activeStatus === 'all'
-        ? true
-        : activeStatus === 'published'
-          ? pub.status === 'published'
-          : pub.status === 'draft';
+
+      let statusMatch = true;
+      if (activeStatus !== 'all') {
+        statusMatch = pub.status === activeStatus;
+      } else if (roleMode === 'public') {
+        statusMatch = pub.status === 'published';
+      }
+
       return categoryMatch && statusMatch;
     });
-  }, [activeCategory, activeStatus, publications]);
+  }, [activeCategory, activeStatus, publications, roleMode]);
+
+  const handleRoleChange = (mode: RoleMode) => {
+    setRoleMode(mode);
+    setActiveStatus('all');
+    Taro.setStorageSync('public_role_mode', mode);
+  };
 
   const handlePublicationClick = (pub: Publication) => {
-    const url = pub.status === 'draft'
-      ? `/pages/public-edit/index?id=${pub.id}`
-      : `/pages/public-detail/index?id=${pub.id}`;
-    Taro.navigateTo({ url });
+    if (roleMode === 'public' || pub.status === 'published') {
+      Taro.navigateTo({
+        url: `/pages/public-detail/index?id=${pub.id}`
+      });
+    } else {
+      Taro.navigateTo({
+        url: `/pages/public-edit/index?id=${pub.id}`
+      });
+    }
   };
 
   const handleAddClick = () => {
@@ -56,11 +88,29 @@ const PublicPage: React.FC = () => {
   };
 
   const getStatusBadgeClass = (status: string) => {
-    return status === 'published' ? styles.statusPublished : styles.statusDraft;
+    switch (status) {
+      case 'published':
+        return styles.statusPublished;
+      case 'draft':
+        return styles.statusDraft;
+      case 'withdrawn':
+        return styles.statusWithdrawn;
+      default:
+        return styles.statusDraft;
+    }
   };
 
   const getStatusText = (status: string) => {
-    return status === 'published' ? '已发布' : '草稿';
+    switch (status) {
+      case 'published':
+        return '已发布';
+      case 'draft':
+        return '草稿';
+      case 'withdrawn':
+        return '已撤回';
+      default:
+        return '草稿';
+    }
   };
 
   const handleRefresh = () => {
@@ -85,6 +135,23 @@ const PublicPage: React.FC = () => {
       refresherTriggered={refreshing}
       onRefresherRefresh={() => setRefreshing(true)}
     >
+      <View className={styles.roleSwitch}>
+        <View
+          className={`${styles.roleTab} ${roleMode === 'cadre' ? styles.roleTabActive : ''}`}
+          onClick={() => handleRoleChange('cadre')}
+        >
+          <Text className={styles.roleIcon}>👨‍💼</Text>
+          <Text className={styles.roleText}>村干部工作台</Text>
+        </View>
+        <View
+          className={`${styles.roleTab} ${roleMode === 'public' ? styles.roleTabActive : ''}`}
+          onClick={() => handleRoleChange('public')}
+        >
+          <Text className={styles.roleIcon}>👥</Text>
+          <Text className={styles.roleText}>群众浏览</Text>
+        </View>
+      </View>
+
       <View className={styles.categoryTabs}>
         <ScrollView
           className={styles.tabsScroll}
@@ -104,7 +171,7 @@ const PublicPage: React.FC = () => {
       </View>
 
       <View className={styles.statusTabs}>
-        {STATUS_TABS.map((tab) => (
+        {statusTabs.map((tab) => (
           <View
             key={tab.value}
             className={`${styles.statusTabItem} ${activeStatus === tab.value ? styles.statusTabActive : ''}`}
@@ -150,20 +217,24 @@ const PublicPage: React.FC = () => {
                     <Text>{pub.views}</Text>
                   </View>
                 </View>
-                <Text className={styles.publishTime}>{pub.status === 'draft' ? '未发布' : pub.publishTime}</Text>
+                <Text className={styles.publishTime}>
+                  {pub.status === 'draft' ? '未发布' : pub.publishTime || '未发布'}
+                </Text>
               </View>
             </View>
           ))
         ) : (
           <View className={styles.emptyWrap}>
-            <EmptyState text="暂无公示信息" />
+            <EmptyState text={roleMode === 'public' ? '暂无公示信息' : '暂无相关公示'} />
           </View>
         )}
       </View>
 
-      <View className={styles.fab} onClick={handleAddClick}>
-        <Text className={styles.fabText}>+</Text>
-      </View>
+      {roleMode === 'cadre' && (
+        <View className={styles.fab} onClick={handleAddClick}>
+          <Text className={styles.fabText}>+</Text>
+        </View>
+      )}
     </ScrollView>
   );
 };

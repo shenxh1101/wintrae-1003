@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, Input, Textarea, ScrollView, Picker } from '@tarojs/components';
-import Taro, { useRouter } from '@tarojs/taro';
+import Taro, { useRouter, useDidShow } from '@tarojs/taro';
 import styles from './index.module.scss';
 import { useAppStore } from '@/store';
 import { Publication } from '@/types';
@@ -29,7 +29,7 @@ const PublicEditPage: React.FC = () => {
 
   const categoryIndex = categoryOptions.findIndex((c) => c.value === formData.category);
 
-  useEffect(() => {
+  const loadData = () => {
     if (isEdit) {
       const id = router.params.id;
       const found = store.getPublication(id);
@@ -44,7 +44,15 @@ const PublicEditPage: React.FC = () => {
         Taro.setNavigationBarTitle({ title: '编辑公示' });
       }
     }
+  };
+
+  useEffect(() => {
+    loadData();
   }, [isEdit, router.params.id, store]);
+
+  useDidShow(() => {
+    loadData();
+  });
 
   const handleInputChange = (field: string, value: string) => {
     setFormData((prev) => ({
@@ -93,10 +101,9 @@ const PublicEditPage: React.FC = () => {
       });
       Taro.showToast({ title: '已保存为草稿', icon: 'success' });
     } else {
-      const beforeCount = store.publications.length;
       store.addPublication(payload);
-      if (store.publications.length > beforeCount) {
-        const newPub = store.publications[0];
+      const newPub = store.publications[0];
+      if (newPub) {
         store.updatePublication(newPub.id, {
           publishTime: ''
         });
@@ -115,21 +122,17 @@ const PublicEditPage: React.FC = () => {
     const payload = getBasePayload();
 
     if (isEdit) {
-      store.updatePublication(router.params.id, {
-        ...payload,
-        status: 'draft'
-      });
+      store.updatePublication(router.params.id, payload);
       store.publishPublication(router.params.id);
       Taro.showToast({ title: '已发布', icon: 'success' });
     } else {
-      const beforeCount = store.publications.length;
       store.addPublication({
         ...payload,
         status: 'draft',
         publishTime: ''
       });
-      if (store.publications.length > beforeCount) {
-        const newPub = store.publications[0];
+      const newPub = store.publications[0];
+      if (newPub) {
         store.publishPublication(newPub.id);
       }
       Taro.showToast({ title: '已发布', icon: 'success' });
@@ -145,9 +148,8 @@ const PublicEditPage: React.FC = () => {
 
     const payload = getBasePayload();
 
-    store.updatePublication(router.params.id, {
+    store.savePublishedPublication(router.params.id, {
       ...payload,
-      status: 'published',
       publishTime: getToday()
     });
 
@@ -161,16 +163,14 @@ const PublicEditPage: React.FC = () => {
     if (!validateForm()) return;
 
     Taro.showModal({
-      title: '确认撤回',
-      content: '撤回后该公示将变为草稿状态，是否继续？',
+      title: '确认撤回为草稿',
+      content: '撤回后该公示将从群众端移除，变为已撤回状态，是否继续？',
       success: (res) => {
         if (res.confirm) {
           const payload = getBasePayload();
-          store.updatePublication(router.params.id, {
-            ...payload,
-            status: 'draft'
-          });
-          Taro.showToast({ title: '已撤回为草稿', icon: 'success' });
+          store.updatePublication(router.params.id, payload);
+          store.withdrawPublication(router.params.id);
+          Taro.showToast({ title: '已撤回', icon: 'success' });
           setTimeout(() => {
             Taro.navigateBack();
           }, 1000);
@@ -180,6 +180,7 @@ const PublicEditPage: React.FC = () => {
   };
 
   const isEditingPublished = isEdit && originalPublication?.status === 'published';
+  const isEditingWithdrawn = isEdit && originalPublication?.status === 'withdrawn';
 
   return (
     <ScrollView className={styles.editPage} scrollY>
@@ -241,7 +242,7 @@ const PublicEditPage: React.FC = () => {
               <Text className={styles.secondaryBtnText}>💾 保存修改</Text>
             </View>
             <View className={styles.dangerBtn} onClick={handleWithdrawToDraft}>
-              <Text className={styles.dangerBtnText}>↩️ 撤回为草稿</Text>
+              <Text className={styles.dangerBtnText}>↩️ 撤回</Text>
             </View>
           </>
         ) : (
@@ -250,7 +251,9 @@ const PublicEditPage: React.FC = () => {
               <Text className={styles.secondaryBtnText}>📄 存草稿</Text>
             </View>
             <View className={styles.primaryBtn} onClick={handlePublish}>
-              <Text className={styles.primaryBtnText}>🚀 发布</Text>
+              <Text className={styles.primaryBtnText}>
+                {isEditingWithdrawn ? '🚀 重新发布' : '🚀 发布'}
+              </Text>
             </View>
           </>
         )}

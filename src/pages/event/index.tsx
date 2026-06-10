@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { View, Text, ScrollView } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { useDidShow } from '@tarojs/taro';
@@ -34,31 +34,46 @@ const extractGroupName = (event: EventItem, farmers: any[]): string => {
 };
 
 const EventPage: React.FC = () => {
+  const store = useAppStore();
+  const statFilter = useAppStore((s) => s.statFilter);
+  const eventList = useAppStore((s) => s.events);
+  const farmers = useAppStore((s) => s.farmers);
+
   const [activeStatus, setActiveStatus] = useState('all');
   const [filterGroup, setFilterGroup] = useState('');
   const [filterType, setFilterType] = useState('');
   const [filterSatisfaction, setFilterSatisfaction] = useState('');
+  const [filterStartDate, setFilterStartDate] = useState('');
+  const [filterEndDate, setFilterEndDate] = useState('');
   const [refreshing, setRefreshing] = useState(false);
-  const eventList = useAppStore((s) => s.events);
-  const farmers = useAppStore((s) => s.farmers);
+
+  const loadFilterFromStore = () => {
+    if (statFilter.status) {
+      setActiveStatus(statFilter.status);
+    }
+    if (statFilter.group) {
+      setFilterGroup(statFilter.group);
+    }
+    if (statFilter.type) {
+      setFilterType(statFilter.type);
+    }
+    if (statFilter.satisfaction) {
+      setFilterSatisfaction(statFilter.satisfaction);
+    }
+    if (statFilter.startDate) {
+      setFilterStartDate(statFilter.startDate);
+    }
+    if (statFilter.endDate) {
+      setFilterEndDate(statFilter.endDate);
+    }
+  };
+
+  useEffect(() => {
+    loadFilterFromStore();
+  }, []);
 
   useDidShow(() => {
-    const filter = Taro.getStorageSync('stat_filter');
-    if (filter) {
-      if (filter.status) {
-        setActiveStatus(filter.status);
-      }
-      if (filter.group) {
-        setFilterGroup(filter.group);
-      }
-      if (filter.type) {
-        setFilterType(filter.type);
-      }
-      if (filter.satisfaction) {
-        setFilterSatisfaction(filter.satisfaction);
-      }
-      Taro.removeStorageSync('stat_filter');
-    }
+    loadFilterFromStore();
   });
 
   const statusCounts = useMemo(() => {
@@ -70,6 +85,21 @@ const EventPage: React.FC = () => {
       closed: eventList.filter((e) => e.status === 'closed').length
     };
   }, [eventList]);
+
+  const isDateInRange = (dateStr: string): boolean => {
+    if (!filterStartDate && !filterEndDate) return true;
+    if (!dateStr) return false;
+    const eventDate = new Date(dateStr.replace(' ', 'T'));
+    if (filterStartDate) {
+      const start = new Date(filterStartDate + 'T00:00:00');
+      if (eventDate < start) return false;
+    }
+    if (filterEndDate) {
+      const end = new Date(filterEndDate + 'T23:59:59');
+      if (eventDate > end) return false;
+    }
+    return true;
+  };
 
   const filteredEvents = useMemo(() => {
     let result = eventList;
@@ -88,10 +118,11 @@ const EventPage: React.FC = () => {
     if (filterSatisfaction) {
       result = result.filter((event) => event.followup?.satisfaction === filterSatisfaction);
     }
+    result = result.filter((event) => isDateInRange(event.createTime));
     return result;
-  }, [activeStatus, filterGroup, filterType, filterSatisfaction, eventList, farmers]);
+  }, [activeStatus, filterGroup, filterType, filterSatisfaction, filterStartDate, filterEndDate, eventList, farmers]);
 
-  const hasActiveFilters = filterGroup || filterType || filterSatisfaction;
+  const hasActiveFilters = filterGroup || filterType || filterSatisfaction || filterStartDate || filterEndDate;
 
   const handleEventClick = (event: EventItem) => {
     Taro.navigateTo({
@@ -109,7 +140,19 @@ const EventPage: React.FC = () => {
     setFilterGroup('');
     setFilterType('');
     setFilterSatisfaction('');
+    setFilterStartDate('');
+    setFilterEndDate('');
+    store.clearStatFilter();
     Taro.showToast({ title: '已清除筛选', icon: 'none' });
+  };
+
+  const handleStatusTabClick = (status: string) => {
+    setActiveStatus(status);
+    if (status === 'all') {
+      store.setStatFilter({ status: undefined });
+    } else {
+      store.setStatFilter({ status });
+    }
   };
 
   const getPriorityInfo = (priority: string) => {
@@ -145,6 +188,14 @@ const EventPage: React.FC = () => {
     }
   }, [refreshing]);
 
+  const dateRangeText = filterStartDate && filterEndDate
+    ? `${filterStartDate} 至 ${filterEndDate}`
+    : filterStartDate
+      ? `${filterStartDate} 起`
+      : filterEndDate
+        ? `至 ${filterEndDate}`
+        : '';
+
   return (
     <ScrollView
       className={styles.eventPage}
@@ -166,7 +217,7 @@ const EventPage: React.FC = () => {
               <View
                 key={status.value}
                 className={`${styles.tabItem} ${activeStatus === status.value ? styles.tabActive : ''}`}
-                onClick={() => setActiveStatus(status.value)}
+                onClick={() => handleStatusTabClick(status.value)}
               >
                 <Text>{status.label}</Text>
                 {showBadge && (
@@ -185,26 +236,32 @@ const EventPage: React.FC = () => {
           <View className={styles.filterTags}>
             <Text className={styles.filterLabel}>筛选：</Text>
             {filterGroup && (
-              <View className={styles.filterTag} onClick={() => setFilterGroup('')}>
+              <View className={styles.filterTag} onClick={() => { setFilterGroup(''); store.setStatFilter({ group: undefined }); }}>
                 <Text className={styles.filterTagText}>组别：{filterGroup}</Text>
                 <Text className={styles.filterTagClose}>×</Text>
               </View>
             )}
             {filterType && (
-              <View className={styles.filterTag} onClick={() => setFilterType('')}>
+              <View className={styles.filterTag} onClick={() => { setFilterType(''); store.setStatFilter({ type: undefined }); }}>
                 <Text className={styles.filterTagText}>类型：{filterType}</Text>
                 <Text className={styles.filterTagClose}>×</Text>
               </View>
             )}
             {filterSatisfaction && (
-              <View className={styles.filterTag} onClick={() => setFilterSatisfaction('')}>
+              <View className={styles.filterTag} onClick={() => { setFilterSatisfaction(''); store.setStatFilter({ satisfaction: undefined }); }}>
                 <Text className={styles.filterTagText}>满意度：{SATISFACTION_MAP[filterSatisfaction]}</Text>
+                <Text className={styles.filterTagClose}>×</Text>
+              </View>
+            )}
+            {dateRangeText && (
+              <View className={styles.filterTag} onClick={() => { setFilterStartDate(''); setFilterEndDate(''); store.setStatFilter({ startDate: undefined, endDate: undefined }); }}>
+                <Text className={styles.filterTagText}>时间：{dateRangeText}</Text>
                 <Text className={styles.filterTagClose}>×</Text>
               </View>
             )}
           </View>
           <View className={styles.clearFilterBtn} onClick={clearFilters}>
-            <Text>清除</Text>
+            <Text>清除全部</Text>
           </View>
         </View>
       )}

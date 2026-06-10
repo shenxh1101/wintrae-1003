@@ -13,7 +13,8 @@ export default defineAppConfig({
     'pages/event-create/index',
     'pages/public-detail/index',
     'pages/public-edit/index',
-    'pages/statistics/index'
+    'pages/statistics/index',
+    'pages/followup/index'
   ],
   window: {
     backgroundTextStyle: 'light',

@@ -249,3 +249,61 @@
   padding: $spacing-xl 0;
   text-align: center;
 }
+
+.monthlyList {
+  display: flex;
+  flex-direction: column;
+  gap: $spacing-md;
+}
+
+.monthlyItem {
+  background: $color-bg-page;
+  border-radius: $radius-md;
+  padding: $spacing-md;
+}
+
+.monthlyHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: $spacing-md;
+}
+
+.monthlyLabel {
+  font-size: $font-size-md;
+  font-weight: $font-weight-semibold;
+  color: $color-text-primary;
+}
+
+.monthlyCount {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+}
+
+.monthlyStats {
+  display: flex;
+  align-items: center;
+}
+
+.monthlyStatItem {
+  flex: 1;
+  text-align: center;
+}
+
+.monthlyStatLabel {
+  font-size: $font-size-xs;
+  color: $color-text-tertiary;
+  margin-bottom: $spacing-xs;
+}
+
+.monthlyStatValue {
+  font-size: $font-size-lg;
+  font-weight: $font-weight-semibold;
+  color: $color-primary;
+}
+
+.monthlyStatDivider {
+  width: 1px;
+  height: 48rpx;
+  background-color: $color-divider;
+}

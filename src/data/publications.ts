@@ -55,11 +55,11 @@ export const publicationList: Publication[] = [
     id: '6',
     title: '村党支部"七一"建党节活动安排',
     category: 'meeting',
-    status: 'draft',
+    status: 'withdrawn',
     content: '全体党员同志：\n\n为庆祝中国共产党成立103周年，村党支部将开展"七一"建党节系列活动，现将有关安排通知如下：\n\n一、活动时间\n2024年7月1日（星期一）上午9:00\n\n二、活动地点\n村党员活动室\n\n三、活动内容\n1. 重温入党誓词\n2. 学习党章党规\n3. 党组书记讲党课\n4. 优秀党员表彰\n5. 走访慰问老党员\n\n四、参加人员\n村全体党员、入党积极分子\n\n五、有关要求\n1. 请全体党员准时参加，不得无故缺席\n2. 佩戴党徽\n3. 做好学习笔记\n\n特此通知。\n\n幸福村党支部\n2024年6月28日',
     publisher: '村党支部',
     publishTime: '2024-06-28',
-    views: 0
+    views: 45
   },
   {
     id: '7',

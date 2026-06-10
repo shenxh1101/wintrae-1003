@@ -54,6 +54,11 @@
   color: $color-text-white;
 }
 
+.statusWithdrawn {
+  background: rgba(255, 255, 255, 0.25);
+  color: $color-text-white;
+}
+
 .metaRow {
   display: flex;
   align-items: center;

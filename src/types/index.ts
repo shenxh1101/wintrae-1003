@@ -88,11 +88,30 @@ export interface Publication {
   id: string;
   title: string;
   category: 'meeting' | 'fund' | 'notice' | 'policy';
-  status: 'draft' | 'published';
+  status: 'draft' | 'published' | 'withdrawn';
   content: string;
   publisher: string;
   publishTime: string;
   views: number;
+}
+
+// 统计筛选条件
+export interface StatFilter {
+  group?: string;
+  type?: string;
+  status?: string;
+  satisfaction?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+// 产业月度汇总
+export interface MonthlyStat {
+  month: string;
+  output: number;
+  outputUnit: string;
+  subsidy: number;
+  recordCount: number;
 }
 
 // 统计数据类型

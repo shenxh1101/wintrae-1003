@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { View, Text, Picker } from '@tarojs/components';
 import Taro from '@tarojs/taro';
 import { useDidShow } from '@tarojs/taro';
@@ -35,6 +35,12 @@ const extractGroupName = (event: EventItem, farmers: any[]): string => {
 };
 
 const StatisticsPage: React.FC = () => {
+  const store = useAppStore();
+  const statFilter = useAppStore((s) => s.statFilter);
+  const farmers = useAppStore((s) => s.farmers);
+  const events = useAppStore((s) => s.events);
+  const industries = useAppStore((s) => s.industries);
+
   const [selectedGroup, setSelectedGroup] = useState('全部');
   const [selectedType, setSelectedType] = useState('全部');
   const [selectedStatus, setSelectedStatus] = useState('all');
@@ -42,20 +48,25 @@ const StatisticsPage: React.FC = () => {
   const [startDate, setStartDate] = useState('2024-01-01');
   const [endDate, setEndDate] = useState('2024-12-31');
 
-  const farmers = useAppStore((s) => s.farmers);
-  const events = useAppStore((s) => s.events);
-  const industries = useAppStore((s) => s.industries);
+  useEffect(() => {
+    if (statFilter.group) setSelectedGroup(statFilter.group);
+    if (statFilter.type) setSelectedType(statFilter.type);
+    if (statFilter.status) setSelectedStatus(statFilter.status);
+    if (statFilter.satisfaction) setSelectedSatisfaction(statFilter.satisfaction);
+    if (statFilter.startDate) setStartDate(statFilter.startDate);
+    if (statFilter.endDate) setEndDate(statFilter.endDate);
+  }, []);
 
-  useDidShow(() => {
-    const filter = Taro.getStorageSync('stat_filter');
-    if (filter) {
-      if (filter.group) setSelectedGroup(filter.group);
-      if (filter.type) setSelectedType(filter.type);
-      if (filter.status) setSelectedStatus(filter.status);
-      if (filter.satisfaction) setSelectedSatisfaction(filter.satisfaction);
-      Taro.removeStorageSync('stat_filter');
-    }
-  });
+  const saveFilter = () => {
+    store.setStatFilter({
+      group: selectedGroup === '全部' ? undefined : selectedGroup,
+      type: selectedType === '全部' ? undefined : selectedType,
+      status: selectedStatus === 'all' ? undefined : selectedStatus,
+      satisfaction: selectedSatisfaction || undefined,
+      startDate,
+      endDate
+    });
+  };
 
   const groupIndex = groupList.indexOf(selectedGroup);
   const typeIndex = eventTypeList.indexOf(selectedType);
@@ -274,20 +285,32 @@ const StatisticsPage: React.FC = () => {
     setSelectedSatisfaction('');
     setStartDate('2024-01-01');
     setEndDate('2024-12-31');
-    Taro.removeStorageSync('stat_filter');
+    store.clearStatFilter();
     Taro.showToast({ title: '已重置筛选', icon: 'none' });
   };
 
   const handleQuery = () => {
+    saveFilter();
     Taro.showToast({ title: '查询成功', icon: 'success' });
   };
 
   const goToFarmerList = () => {
+    saveFilter();
     Taro.switchTab({ url: '/pages/farmer/index' }).catch(() => {});
   };
 
   const goToEventListWithFilter = (filter: Record<string, any>) => {
-    Taro.setStorageSync('stat_filter', filter);
+    saveFilter();
+    const fullFilter = {
+      group: selectedGroup !== '全部' ? selectedGroup : undefined,
+      type: selectedType !== '全部' ? selectedType : undefined,
+      status: selectedStatus !== 'all' ? selectedStatus : undefined,
+      satisfaction: selectedSatisfaction || undefined,
+      startDate,
+      endDate,
+      ...filter
+    };
+    store.setStatFilter(fullFilter);
     Taro.switchTab({ url: '/pages/event/index' }).catch(() => {
       Taro.navigateTo({ url: '/pages/event/index' });
     });
@@ -295,26 +318,30 @@ const StatisticsPage: React.FC = () => {
 
   const handleGroupClick = (groupName: string) => {
     setSelectedGroup(groupName);
+    saveFilter();
     goToEventListWithFilter({ group: groupName });
   };
 
   const handleTypeClick = (typeName: string) => {
     setSelectedType(typeName);
+    saveFilter();
     goToEventListWithFilter({ type: typeName });
   };
 
   const handleStatusClick = (statusValue: string) => {
     setSelectedStatus(statusValue);
+    saveFilter();
     goToEventListWithFilter({ status: statusValue });
   };
 
   const handleSatisfactionClick = (satisfactionValue: string) => {
     setSelectedSatisfaction(satisfactionValue);
-    Taro.showToast({ title: '已按满意度筛选', icon: 'none' });
+    saveFilter();
     goToEventListWithFilter({ satisfaction: satisfactionValue });
   };
 
   const goToIndustryList = () => {
+    saveFilter();
     Taro.switchTab({ url: '/pages/industry/index' }).catch(() => {});
   };
 

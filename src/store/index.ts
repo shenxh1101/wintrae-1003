@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import Taro from '@tarojs/taro';
-import { Farmer, IndustryProject, EventItem, Publication, IndustryRecord, EventFollowup } from '@/types';
+import { Farmer, IndustryProject, EventItem, Publication, IndustryRecord, EventFollowup, StatFilter, MonthlyStat } from '@/types';
 import { farmerList } from '@/data/farmers';
 import { industryList } from '@/data/industries';
 import { eventList } from '@/data/events';
@@ -21,6 +21,7 @@ interface AppState {
   industries: IndustryProject[];
   events: EventItem[];
   publications: Publication[];
+  statFilter: StatFilter;
   initialized: boolean;
 
   initFromStorage: () => void;
@@ -36,6 +37,7 @@ interface AppState {
   deleteIndustry: (id: string) => void;
   getIndustry: (id: string) => IndustryProject | undefined;
   addIndustryRecord: (projectId: string, record: Omit<IndustryRecord, 'id'>) => void;
+  getMonthlyStats: (projectId?: string) => MonthlyStat[];
 
   addEvent: (event: Omit<EventItem, 'id'>) => void;
   updateEvent: (id: string, event: Partial<EventItem>) => void;
@@ -51,6 +53,11 @@ interface AppState {
   getPublication: (id: string) => Publication | undefined;
   publishPublication: (id: string) => void;
   withdrawPublication: (id: string) => void;
+  savePublishedPublication: (id: string, data: Partial<Publication>) => void;
+
+  setStatFilter: (filter: StatFilter) => void;
+  getStatFilter: () => StatFilter;
+  clearStatFilter: () => void;
 
   clearAllData: () => void;
 }
@@ -69,6 +76,7 @@ export const useAppStore = create<AppState>((set, get) => ({
   industries: [],
   events: [],
   publications: [],
+  statFilter: {},
   initialized: false,
 
   initFromStorage: () => {
@@ -81,6 +89,7 @@ export const useAppStore = create<AppState>((set, get) => ({
           industries: parsed.industries || [],
           events: parsed.events || [],
           publications: parsed.publications || [],
+          statFilter: parsed.statFilter || {},
           initialized: true
         });
       } else {
@@ -89,6 +98,7 @@ export const useAppStore = create<AppState>((set, get) => ({
           industries: [...industryList],
           events: [...eventList],
           publications: [...publicationList],
+          statFilter: {},
           initialized: true
         });
         get().persist();
@@ -100,6 +110,7 @@ export const useAppStore = create<AppState>((set, get) => ({
         industries: [...industryList],
         events: [...eventList],
         publications: [...publicationList],
+        statFilter: {},
         initialized: true
       });
     }
@@ -107,9 +118,9 @@ export const useAppStore = create<AppState>((set, get) => ({
 
   persist: () => {
     try {
-      const { farmers, industries, events, publications } = get();
+      const { farmers, industries, events, publications, statFilter } = get();
       Taro.setStorageSync(STORAGE_KEY, JSON.stringify({
-        farmers, industries, events, publications
+        farmers, industries, events, publications, statFilter
       }));
     } catch (e) {
       console.error('persist error', e);
@@ -189,6 +200,49 @@ export const useAppStore = create<AppState>((set, get) => ({
       })
     }));
     get().persist();
+  },
+
+  getMonthlyStats: (projectId) => {
+    const { industries } = get();
+    const targetProjects = projectId
+      ? industries.filter((p) => p.id === projectId)
+      : industries;
+
+    const monthMap = new Map<string, { output: number; outputUnit: string; subsidy: number; recordCount: number }>();
+
+    targetProjects.forEach((project) => {
+      project.records.forEach((record) => {
+        const dateStr = record.time.split(' ')[0];
+        const month = dateStr.substring(0, 7);
+
+        if (!monthMap.has(month)) {
+          monthMap.set(month, {
+            output: 0,
+            outputUnit: project.outputUnit,
+            subsidy: 0,
+            recordCount: 0
+          });
+        }
+
+        const stat = monthMap.get(month)!;
+        stat.recordCount += 1;
+        if (record.type === 'output') {
+          stat.output += record.amount;
+        } else if (record.type === 'subsidy') {
+          stat.subsidy += record.amount;
+        }
+      });
+    });
+
+    return Array.from(monthMap.entries())
+      .map(([month, data]) => ({
+        month,
+        output: data.output,
+        outputUnit: data.outputUnit,
+        subsidy: data.subsidy,
+        recordCount: data.recordCount
+      }))
+      .sort((a, b) => b.month.localeCompare(a.month));
   },
 
   addEvent: (event) => {
@@ -330,7 +384,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       ...publication,
       id,
       status: 'draft',
-      publishTime: new Date().toISOString().split('T')[0],
+      publishTime: '',
       views: 0
     } as Publication;
     set((s) => ({ publications: [newPub, ...s.publications] }));
@@ -366,9 +420,30 @@ export const useAppStore = create<AppState>((set, get) => ({
   withdrawPublication: (id) => {
     set((s) => ({
       publications: s.publications.map((p) =>
-        p.id === id ? { ...p, status: 'draft' } : p
+        p.id === id ? { ...p, status: 'withdrawn' } : p
       )
     }));
+    get().persist();
+  },
+
+  savePublishedPublication: (id, data) => {
+    set((s) => ({
+      publications: s.publications.map((p) =>
+        p.id === id ? { ...p, ...data, status: 'published' } : p
+      )
+    }));
+    get().persist();
+  },
+
+  setStatFilter: (filter) => {
+    set((s) => ({ statFilter: { ...s.statFilter, ...filter } }));
+    get().persist();
+  },
+
+  getStatFilter: () => get().statFilter,
+
+  clearStatFilter: () => {
+    set({ statFilter: {} });
     get().persist();
   },
 
@@ -378,6 +453,7 @@ export const useAppStore = create<AppState>((set, get) => ({
       industries: [...industryList],
       events: [...eventList],
       publications: [...publicationList],
+      statFilter: {},
       initialized: true
     });
     get().persist();

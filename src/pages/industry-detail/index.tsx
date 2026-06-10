@@ -1,25 +1,40 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { View, Text, Image, ScrollView } from '@tarojs/components';
-import Taro, { useRouter } from '@tarojs/taro';
+import Taro, { useRouter, useDidShow } from '@tarojs/taro';
 import styles from './index.module.scss';
 import Tag from '@/components/Tag';
 import { useAppStore } from '@/store';
-import { IndustryProject, IndustryRecord } from '@/types';
+import { IndustryProject, IndustryRecord, MonthlyStat } from '@/types';
 
 const IndustryDetailPage: React.FC = () => {
   const router = useRouter();
+  const store = useAppStore();
   const getIndustry = useAppStore((s) => s.getIndustry);
+  const getMonthlyStats = useAppStore((s) => s.getMonthlyStats);
   const addIndustryRecord = useAppStore((s) => s.addIndustryRecord);
   const industries = useAppStore((s) => s.industries);
   const [project, setProject] = useState<IndustryProject | null>(null);
 
-  useEffect(() => {
+  const loadData = () => {
     const id = router.params.id;
     const found = getIndustry(id);
     if (found) {
       setProject(found);
     }
+  };
+
+  useEffect(() => {
+    loadData();
   }, [router.params.id, getIndustry, industries]);
+
+  useDidShow(() => {
+    loadData();
+  });
+
+  const monthlyStats = useMemo(() => {
+    if (!project) return [];
+    return getMonthlyStats(project.id);
+  }, [project, getMonthlyStats, industries]);
 
   const handleEdit = () => {
     Taro.navigateTo({
@@ -80,6 +95,7 @@ const IndustryDetailPage: React.FC = () => {
         time
       });
 
+      loadData();
       Taro.showToast({ title: '记录成功', icon: 'success' });
     } catch (e) {
       console.log('用户取消操作');
@@ -116,6 +132,11 @@ const IndustryDetailPage: React.FC = () => {
   }
 
   const statusInfo = getStatusInfo(project.status);
+
+  const formatMonthLabel = (month: string) => {
+    const parts = month.split('-');
+    return `${parts[0]}年${parseInt(parts[1])}月`;
+  };
 
   return (
     <ScrollView className={styles.detailPage} scrollY>
@@ -166,32 +187,45 @@ const IndustryDetailPage: React.FC = () => {
 
       <View className={styles.section}>
         <Text className={styles.sectionTitle}>
-          <Text className={styles.titleIcon}>📋</Text>
-          项目信息
+          <Text className={styles.titleIcon}>�</Text>
+          月度汇总
         </Text>
-        <View className={styles.infoList}>
-          <View className={styles.infoItem}>
-            <Text className={styles.infoLabel}>项目类型</Text>
-            <Text className={styles.infoValue}>{project.type}</Text>
+        {monthlyStats.length > 0 ? (
+          <View className={styles.monthlyList}>
+            {monthlyStats.map((stat: MonthlyStat, index) => (
+              <View key={index} className={styles.monthlyItem}>
+                <View className={styles.monthlyHeader}>
+                  <Text className={styles.monthlyLabel}>{formatMonthLabel(stat.month)}</Text>
+                  <Text className={styles.monthlyCount}>{stat.recordCount} 笔记录</Text>
+                </View>
+                <View className={styles.monthlyStats}>
+                  <View className={styles.monthlyStatItem}>
+                    <Text className={styles.monthlyStatLabel}>产量</Text>
+                    <Text className={styles.monthlyStatValue}>
+                      {stat.output.toLocaleString()} {stat.outputUnit}
+                    </Text>
+                  </View>
+                  <View className={styles.monthlyStatDivider} />
+                  <View className={styles.monthlyStatItem}>
+                    <Text className={styles.monthlyStatLabel}>补贴</Text>
+                    <Text className={styles.monthlyStatValue}>
+                      ¥{stat.subsidy.toLocaleString()}
+                    </Text>
+                  </View>
+                </View>
+              </View>
+            ))}
           </View>
-          <View className={styles.infoItem}>
-            <Text className={styles.infoLabel}>项目规模</Text>
-            <Text className={styles.infoValue}>{project.scale}</Text>
+        ) : (
+          <View className={styles.recordEmpty}>
+            <Text style={{ fontSize: '24rpx', color: '#86909C' }}>暂无月度数据</Text>
           </View>
-          <View className={styles.infoItem}>
-            <Text className={styles.infoLabel}>所属合作社</Text>
-            <Text className={styles.infoValue}>{project.cooperative}</Text>
-          </View>
-          <View className={styles.infoItem}>
-            <Text className={styles.infoLabel}>创建时间</Text>
-            <Text className={styles.infoValue}>{project.createTime}</Text>
-          </View>
-        </View>
+        )}
       </View>
 
       <View className={styles.section}>
         <Text className={styles.sectionTitle}>
-          <Text className={styles.titleIcon}>📊</Text>
+          <Text className={styles.titleIcon}>�</Text>
           流水记录
         </Text>
         {sortedRecords.length > 0 ? (
